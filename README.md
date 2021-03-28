@@ -188,13 +188,13 @@ An email address is required for the oauth proxy to work even though it is not a
 
 | Service Name | URL |
 | ----- | ----- |
-| Code-Server | https://code-server.<your-domain-name-here> |
-| Duplicati | https://backups.<your-domain-name-here> |
-| Jellyfin | https://jellyfin.<your-domain-name-here> |
-| Keycloak | https://auth.<your-domain-name-here> |
-| Radarr | https://radarr.<your-domain-name-here> |
-| Ombi | https://ombi.<your-domain-name-here> |
-| Overseerr | https://overseerr.<your-domain-name-here> |
-| Radarr | https://radarr.<your-domain-name-here> |
-| Sabnzbd | https://sab.<your-domain-name-here> |
-| Sonarr | https://sonarr.<your-domain-name-here> |
+| Code-Server | `https://code-server.<your-domain-name-here>` |
+| Duplicati | `https://backups.<your-domain-name-here>` |
+| Jellyfin | `https://jellyfin.<your-domain-name-here>` |
+| Keycloak | `https://auth.<your-domain-name-here>` |
+| Radarr | `https://radarr.<your-domain-name-here>` |
+| Ombi | `https://ombi.<your-domain-name-here>` |
+| Overseerr | `https://overseerr.<your-domain-name-here>` |
+| Radarr | `https://radarr.<your-domain-name-here>` |
+| Sabnzbd | `https://sab.<your-domain-name-here>` |
+| Sonarr | `https://sonarr.<your-domain-name-here>` |
