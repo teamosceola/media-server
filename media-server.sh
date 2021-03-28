@@ -7,17 +7,28 @@
 ##### Edit the following variables to match your system #####
 #############################################################
 
+### DDNS Variables ###
+# Your domain name (DOMAIN_NAME=example.com)
 DOMAIN_NAME=
-CONFIGS_BASE_DIR=/data/configs
-MEDIA_BASE_DIR=/data
-BACKUPS_DIR=/data/backups
-TV_MEDIA_DIR=${MEDIA_BASE_DIR}/tv
-MOVIE_MEDIA_DIR=${MEDIA_BASE_DIR}/movies
-DOWNLOADS=/data/downloads
-INCOMPLETE_DOWNLOADS=/data/incomplete-downloads
+# Your Namecheap Dynamic DNS Password
 NC_DDNS_PASS=
+# The email address that will be used for LetsEncrypt SSL Certs
 EMAIL=
 
+### Directory locations ###
+# App configs (Recommend using local NVMe or SSD storage)
+CONFIGS_BASE_DIR=/data/configs
+# Media (Mass Bulk Storage, could be network attached or local)
+MEDIA_BASE_DIR=/data/media
+TV_MEDIA_DIR=${MEDIA_BASE_DIR}/tv
+MOVIE_MEDIA_DIR=${MEDIA_BASE_DIR}/movies
+# Downloads (Recommend using local direct attached storage)
+DOWNLOADS=/data/downloads/complete
+INCOMPLETE_DOWNLOADS=/data/downloads/incomplete
+# Backups (destination for duplicati backups of App configs)
+BACKUPS_DIR=/data/backups
+
+### S3 Storage info ###
 # Set USE_S3_MEDIA=true to use S3 as media storage backend (This is slow)
 USE_S3_MEDIA=false
 S3_ACCESS_KEY=
@@ -890,6 +901,11 @@ EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/keycloak-setup.sh
 #!/bin/bash
+until [[ \$(docker logs keycloak | grep 'Admin console listening on http://127.0.0.1:9990' > /dev/null ; echo \$?) -eq "0" ]]
+do
+        echo "Waiting for Keycloak to finish starting"
+        sleep 1
+done
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password '${KEYCLOAK_ADMIN_PASSWORD}'
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update realms/master -s enabled=true -s bruteForceProtected=true
 ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get users -c -r master -q username=admin --fields id --format csv --noquotes)
