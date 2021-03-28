@@ -4,15 +4,31 @@
 
 A home media server setup script that uses docker-compose for container orchestration, Traefik reverse proxy with LetsEncrypt SSL certificates, Keycloak for SSO, and oauth2-proxy for full authenticating proxy.
 
-## How to Get it Deployed
+## Outline
 
-### 1. Get a Domain Name
+- [How to Get it Deployed](#how-to-get-it-deployed)
+    - [1. Get a Domain Name](#1-get-a-domain-name)
+    - [2. Configure Namecheap DDNS](#2-configure-namecheap-ddns)
+    - [3. Setup Your Server](#3-setup-your-server)
+    - [4. Setup Port Forwarding](#4-setup-port-forwarding)
+    - [5. Clone The Repo](#5-clone-the-repo)
+    - [6. Edit the variables in `media-server.sh`](#6-edit-the-variables-in-media-server.sh)
+    - [7. Run the Script](#7-run-the-script)
+    - [8. Start the Dynamic DNS Client](#8-start-the-dynamic-dns-client)
+    - [9. Startup Keycloak](#9-startup-keycloak)
+    - [10. Deploy all the things](#10-deploy-all-the-things)
+- [User Accounts](#user-accounts)
+- [Access the Services](#access-the-services)
+
+# How to Get it Deployed
+
+## 1. Get a Domain Name
 
 Get a domain name from [Namecheap](https://www.namecheap.com/).
 It's important to use [Namecheap](https://www.namecheap.com/) because the dynamic DNS client configuration depends on it.
 If you don't want to use [Namecheap](https://www.namecheap.com/), then you are on your own for modifying the `ddclient.conf` file.
 
-### 2. Configure Namecheap DDNS
+## 2. Configure Namecheap DDNS
 
 - From your [Namecheap Dashboard](https://ap.www.namecheap.com/dashboard), click on the `MANAGE` button for your domain.
 - Turn off the "Parking page".
@@ -34,7 +50,7 @@ If you don't want to use [Namecheap](https://www.namecheap.com/), then you are o
 | A + Dynamic DNS Record | sonarr | 127.0.0.1 | Automatic |
 
 
-### 3. Setup Your Server
+## 3. Setup Your Server
 
 I recommend using Ubuntu Server 20.04 LTS on either a pyhsical machine or a VPS.
 
@@ -47,19 +63,19 @@ Run `sudo apt update && sudo apt upgrade -y` then reboot to make sure you are fu
 
 Configure your firewall. At a minimum you will want TCP ports 22, 80, and 443 open. It's also nice to open TCP port 8080, which is the [Traefik](https://github.com/traefik/traefik) dashboard.
 
-### 4. Setup Port Forwarding
+## 4. Setup Port Forwarding
 
 Configure your router to forward ports 80 and 443 to your server's LAN IP address.
 This is not applicable if your server has a public IP address.
 
-### 5. Clone The Repo
+## 5. Clone The Repo
 
 Login to your server and clone this repo by runnig
 ```
 git clone https://github.com/teamosceola/media-server.git
 ```
 
-### 6. Edit the variables in `media-server.sh`
+## 6. Edit the variables in `media-server.sh`
 
 Required variables that need setting:
 - `DOMAIN_NAME`
@@ -75,7 +91,7 @@ Optional variables that can be modified, but have default values that will work:
 - `INCOMPLETE_DOWNLOADS=/data/downloads/incomplete`
 - `BACKUPS_DIR=/data/backups`
 
-### 7. Run the Script
+## 7. Run the Script
 
 Running the `media-server.sh` script will do the following:
 - Create all the necessary directories
@@ -111,7 +127,7 @@ After running the script (assuming you kept default directory locations), it wil
     └── tv
 ```
 
-### 8. Start the Dynamic DNS Client
+## 8. Start the Dynamic DNS Client
 
 Change to your configs directory (`/data/configs` is the default) and run
 ```
@@ -119,7 +135,7 @@ docker-compose-up -d ddclient
 ```
 Then login to your [Namecheap Dashboard](https://ap.www.namecheap.com/dashboard), go to domain management, then the advanced dns tab and verify that the IP address for all the records you added earlier have been updated to your current public IP address.
 
-### 9. Startup Keycloak
+## 9. Startup Keycloak
 
 Start Keycloak by running
 ```
@@ -146,14 +162,14 @@ Created new client with id '00fdab54-f91d-4082-afb8-6c0ec2034b6c'
 Created new client with id '5ff478fc-ae16-4970-a0e2-1deee4669f30'
 ```
 
-### 10. Deploy all the things
+## 10. Deploy all the things
 
 To deploy and start all the remaining services run
 ```
 docker-compose up -d
 ```
 
-## User Accounts
+# User Accounts
 
 You can now get to the Keycloak Administration Console by browsing to `https://auth.<your-domain-name-here>/auth/`
 
@@ -184,7 +200,7 @@ Services in the `user` realm:
 Now add your user accounts to Keycloak. 
 An email address is required for the oauth proxy to work even though it is not a required field by Keycloak, so make sure you set an email address for every user account you add.
 
-## Access the Services
+# Access the Services
 
 | Service Name | URL |
 | ----- | ----- |
