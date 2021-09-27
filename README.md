@@ -17,6 +17,7 @@ A home media server setup script that uses docker-compose for container orchestr
     - [8. Start the Dynamic DNS Client](#8-start-the-dynamic-dns-client)
     - [9. Startup Keycloak](#9-startup-keycloak)
     - [10. Deploy all the things](#10-deploy-all-the-things)
+    - [11. Configure SABnzbd](#11-configure-sabnzbd)
 - [User Accounts](#user-accounts)
 - [Access the Services](#access-the-services)
 
@@ -167,6 +168,15 @@ Created new client with id '5ff478fc-ae16-4970-a0e2-1deee4669f30'
 To deploy and start all the remaining services run
 ```
 docker-compose up -d
+```
+
+## 11. Configure SABnzbd
+
+### Fix Host-Verification Failed
+
+To fix the host-verification failed error when trying to acces SABnzbd run
+```
+./sabnzbd-setup.sh
 ```
 
 # User Accounts
