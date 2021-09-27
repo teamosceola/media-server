@@ -911,10 +911,10 @@ EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/keycloak-setup.sh
 #!/bin/bash
-until [[ \$(docker logs keycloak | grep 'Admin console listening on http://127.0.0.1:9990' > /dev/null ; echo \$?) -eq "0" ]]
+until [[ \$(docker logs keycloak 2> /dev/null | grep 'Admin console listening on http://127.0.0.1:9990' > /dev/null ; echo \$?) -eq "0" ]]
 do
         echo "Waiting for Keycloak to finish starting"
-        sleep 1
+        sleep 5
 done
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password '${KEYCLOAK_ADMIN_PASSWORD}'
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update realms/master -s enabled=true -s bruteForceProtected=true
