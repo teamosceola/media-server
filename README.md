@@ -177,6 +177,7 @@ docker-compose up -d
 To fix the host-verification failed error when trying to acces SABnzbd run
 ```
 ./sabnzbd-setup.sh
+docker-compose restart sabnzbd
 ```
 
 # User Accounts
