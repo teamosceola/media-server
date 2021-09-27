@@ -934,3 +934,11 @@ docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s 
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/user/overseerr -s secret=${KEYCLOAK_OVERSEERR_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/user/jellyfin -s secret=${KEYCLOAK_JELLYFIN_SECRET}
 EOF
+
+cat << EOF > ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh
+#!/bin/bash
+sed -r -i 's/(^host_whitelist = .*,).*$/\1sab.${DOMAIN_NAME}/g' ${CONFIGS_BASE_DIR}/sabnzbd/sabnzbd.ini
+sed -r -i 's/^local_ranges = .*$/local_ranges = 10., 172., 192., 127./g' ${CONFIGS_BASE_DIR}/sabnzbd/sabnzbd.ini
+EOF
+
+
