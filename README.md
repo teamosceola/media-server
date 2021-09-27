@@ -131,7 +131,7 @@ After running the script (assuming you kept default directory locations), it wil
 
 Change to your configs directory (`/data/configs` is the default) and run
 ```
-docker-compose-up -d ddclient
+docker-compose up -d ddclient
 ```
 Then login to your [Namecheap Dashboard](https://ap.www.namecheap.com/dashboard), go to domain management, then the advanced dns tab and verify that the IP address for all the records you added earlier have been updated to your current public IP address.
 
