@@ -261,6 +261,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   radarr:
     image: ghcr.io/linuxserver/radarr
     labels:
@@ -332,6 +333,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   ombi:
     image: ghcr.io/linuxserver/ombi
     labels:
@@ -402,6 +404,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   sabnzbd:
     image: ghcr.io/linuxserver/sabnzbd
     labels:
@@ -445,7 +448,7 @@ services:
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
-      - --upstream=http://sab:8080
+      - --upstream=http://sabnzbd:8080
       - --skip-provider-button=true
       - --reverse-proxy=true
       - --pass-basic-auth=false
@@ -473,6 +476,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   plex:
     image: ghcr.io/linuxserver/plex
     container_name: plex
@@ -563,6 +567,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   code-server:
     image: ghcr.io/linuxserver/code-server
     labels:
@@ -633,6 +638,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   overseerr:
     image: sctx/overseerr:latest
     container_name: overseerr
@@ -701,6 +707,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   duplicati:
     image: ghcr.io/linuxserver/duplicati
     container_name: duplicati
@@ -773,6 +780,7 @@ services:
       - redis
       - keycloak
       - reverse-proxy
+    restart: unless-stopped
   postgres:
     image: postgres
     labels:
@@ -848,6 +856,7 @@ services:
       - ${CONFIGS_BASE_DIR}/redis:/bitnami/redis/data
     networks:
       - redis
+    restart: unless-stopped
   wireguard:
     image: ghcr.io/linuxserver/wireguard
     container_name: wireguard
@@ -897,6 +906,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - ddclient
+    restart: unless-stopped
 EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/keycloak-setup.sh
