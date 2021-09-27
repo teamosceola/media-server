@@ -235,7 +235,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
       - --upstream=http://sonarr:8989
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -307,7 +307,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
       - --upstream=http://radarr:7878
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -378,7 +378,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
       - --upstream=http://ombi:3579
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -450,7 +450,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
       - --upstream=http://sabnzbd:8080
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -541,7 +541,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
       - --upstream=http://jellyfin:8096
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -612,7 +612,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
       - --upstream=http://code-server:8443
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -681,7 +681,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
       - --upstream=http://overseerr:5055
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -754,7 +754,7 @@ services:
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
       - --upstream=http://duplicati:8200
       - --skip-provider-button=true
-      - --reverse-proxy=true
+      - --reverse-proxy=false
       - --pass-basic-auth=false
       - --pass-user-headers=false
       - --set-xauthrequest=false
@@ -922,17 +922,17 @@ ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get users -c -r mast
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update users/\${ID} -s 'email=admin@${DOMAIN_NAME}'
 ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r master -q clientId=account-console --fields id --format csv --noquotes)
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r master clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/master/sonarr -s secret=${KEYCLOAK_SONARR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/master/radarr -s secret=${KEYCLOAK_RADARR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/master/sabnzbd -s secret=${KEYCLOAK_SABNZBD_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/master/code-server -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/master/duplicati -s secret=${KEYCLOAK_DUPLICATI_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sonarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_SONARR_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://radarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_RADARR_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://duplicati.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
 ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r user clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=ombi -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/user/ombi -s secret=${KEYCLOAK_OMBI_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/user/overseerr -s secret=${KEYCLOAK_OVERSEERR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s baseUrl=/auth/realms/user/jellyfin -s secret=${KEYCLOAK_JELLYFIN_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=ombi -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://ombi.${DOMAIN_NAME} -s secret=${KEYCLOAK_OMBI_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://overseerr.${DOMAIN_NAME} -s secret=${KEYCLOAK_OVERSEERR_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://jellyfin.${DOMAIN_NAME} -s secret=${KEYCLOAK_JELLYFIN_SECRET}
 EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh

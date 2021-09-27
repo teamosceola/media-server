@@ -208,7 +208,8 @@ Services in the `user` realm:
 - overseerr
 
 Now add your user accounts to Keycloak. 
-An email address is required for the oauth proxy to work even though it is not a required field by Keycloak, so make sure you set an email address for every user account you add.
+
+>NOTE: An email address is required for the oauth proxy to work even though it is not a required field by Keycloak, so make sure you set an email address for every user account you add.
 
 # Access the Services
 
@@ -217,7 +218,8 @@ An email address is required for the oauth proxy to work even though it is not a
 | Code-Server | `https://code-server.<your-domain-name-here>` |
 | Duplicati | `https://backups.<your-domain-name-here>` |
 | Jellyfin | `https://jellyfin.<your-domain-name-here>` |
-| Keycloak | `https://auth.<your-domain-name-here>` |
+| Keycloak (Admin Console) | `https://auth.<your-domain-name-here>/auth/admin/master/console/` |
+| Keycloak (User Self-Service) | `https://auth.<your-domain-name-here>/auth/realms/user/account/` |
 | Radarr | `https://radarr.<your-domain-name-here>` |
 | Ombi | `https://ombi.<your-domain-name-here>` |
 | Overseerr | `https://overseerr.<your-domain-name-here>` |
