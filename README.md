@@ -49,6 +49,7 @@ If you don't want to use [Namecheap](https://www.namecheap.com/), then you are o
 | A + Dynamic DNS Record | radarr | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | sab | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | sonarr | 127.0.0.1 | Automatic |
+| A + Dynamic DNS Record | tdarr | 127.0.0.1 | Automatic |
 
 
 ## 3. Setup Your Server
@@ -119,6 +120,7 @@ After running the script (assuming you kept default directory locations), it wil
 │   ├── letsencrypt
 │   │   └── acme.json
 │   ├── redis
+│   ├── sabnzbd-setup.sh
 │   └── secrets
 ├── downloads
 │   ├── complete
@@ -202,6 +204,7 @@ Services in the `master` realm:
 - radarr
 - sabnzbd
 - sonarr
+- tdarr
 
 Services in the `user` realm:
 - jellyfin
@@ -227,3 +230,4 @@ Now add your user accounts to Keycloak.
 | Radarr | `https://radarr.<your-domain-name-here>` |
 | Sabnzbd | `https://sab.<your-domain-name-here>` |
 | Sonarr | `https://sonarr.<your-domain-name-here>` |
+| Tdarr | `https://Tdarr.<your-domain-name-here>` |

@@ -25,6 +25,8 @@ MOVIE_MEDIA_DIR=${MEDIA_BASE_DIR}/movies
 # Downloads (Recommend using local direct attached storage)
 DOWNLOADS=/data/downloads/complete
 INCOMPLETE_DOWNLOADS=/data/downloads/incomplete
+# Transcode Cache for Tdarr (Recommend using local direct attached storage)
+TDARR_TRANSCODE_CACHE=/data/transcode_cache
 # Backups (destination for duplicati backups of App configs)
 BACKUPS_DIR=/data/backups
 
@@ -76,6 +78,11 @@ if [[ -z $KEYCLOAK_SONARR_SECRET ]]
 then
     KEYCLOAK_SONARR_SECRET=$(uuidgen)
     echo "KEYCLOAK_SONARR_SECRET=$KEYCLOAK_SONARR_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
+fi
+if [[ -z $KEYCLOAK_TDARR_SECRET ]]
+then
+    KEYCLOAK_TDARR_SECRET=$(uuidgen)
+    echo "KEYCLOAK_TDARR_SECRET=$KEYCLOAK_TDARR_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
 fi
 if [[ -z $KEYCLOAK_SABNZBD_SECRET ]]
 then
@@ -156,7 +163,7 @@ protocol=namecheap, \\
 server=dynamicdns.park-your-domain.com,	\\
 login=${DOMAIN_NAME}, \\
 password=${NC_DDNS_PASS} \\
-@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},ombi.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME}
+@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},ombi.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME}
 EOF
 
 # Create acme.json file for letsencrypt
@@ -242,7 +249,7 @@ services:
       - --set-authorization-header=false
       - --set-basic-auth=false
       - --client-id=sonarr
-      - --client-secret=${KEYCLOAK_SONARR_SECRET}
+      - --client-secret=${KEYCLOAK_TDARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
       - --ssl-insecure-skip-verify=true
@@ -330,6 +337,81 @@ services:
       - redis
     depends_on:
       - radarr
+      - redis
+      - keycloak
+      - reverse-proxy
+    restart: unless-stopped
+  tdarr:
+    image: haveagitgat/tdarr:latest
+    labels:
+      - traefik.enable=false
+    container_name: tdarr
+    environment:
+      - PUID=${USERID}
+      - PGID=${GROUPID}
+      - TZ=${TZ}
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+    volumes:
+      - ${CONFIGS_BASE_DIR}/tdarr/server:/app/server
+      - ${MEDIA_BASE_DIR}:/media
+      - ${TDARR_TRANSCODE_CACHE}:/temp
+    networks:
+      - apps_protected_net
+    restart: unless-stopped
+  tdarr-auth-proxy:
+    image: quay.io/pusher/oauth2_proxy:latest
+    container_name: tdarr-auth-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=apps_net
+      - traefik.http.services.tdarr_svc.loadbalancer.server.port=4180
+      - traefik.http.services.tdarr_svc.loadbalancer.server.scheme=http
+      - traefik.http.routers.tdarr.service=tdarr_svc
+      - traefik.http.routers.tdarr.rule=Host(\`tdarr.${DOMAIN_NAME}\`)
+      - traefik.http.routers.tdarr.entrypoints=websecure
+      - traefik.http.routers.tdarr.tls=true
+      - traefik.http.routers.tdarr.tls.certresolver=le
+      - traefik.http.routers.tdarr-http.entrypoints=web
+      - traefik.http.routers.tdarr-http.rule=Host(\`tdarr.${DOMAIN_NAME}\`)
+      - traefik.http.routers.tdarr-http.middlewares=tdarr-https-redirect
+      - traefik.http.middlewares.tdarr-https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.tdarr-https-redirect.redirectscheme.permanent=true
+    command:
+      - --provider=oidc
+      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secure=true
+      - --cookie-domain=.${DOMAIN_NAME}
+      - --cookie-name=_oauth2_proxy_master
+      - --cookie-samesite=lax
+      - --provider-display-name="Keycloak OIDC"
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --upstream=http://tdarr:8265
+      - --skip-provider-button=true
+      - --reverse-proxy=false
+      - --pass-basic-auth=false
+      - --pass-user-headers=false
+      - --set-xauthrequest=false
+      - --set-authorization-header=false
+      - --set-basic-auth=false
+      - --client-id=tdarr
+      - --client-secret=${KEYCLOAK_tdarr_SECRET}
+      - --http-address=0.0.0.0:4180
+      - --email-domain=*
+      - --ssl-insecure-skip-verify=true
+      - --ssl-upstream-insecure-skip-verify=true
+      - --insecure-oidc-allow-unverified-email=true
+      - --insecure-oidc-skip-issuer-verification=true
+      - --session-store-type=redis
+      - --redis-connection-url=redis://redis
+      - --trusted-ip=${APPS_NET_SUBNET}.0.1
+    networks:
+      - apps_net
+      - apps_protected_net
+      - redis
+    depends_on:
+      - tdarr
       - redis
       - keycloak
       - reverse-proxy
@@ -924,6 +1006,7 @@ ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r maste
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r master clients/\${ID} -s 'webOrigins=["*"]'
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sonarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_SONARR_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://radarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_RADARR_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=tdarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://tdarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_TDARR_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://duplicati.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
