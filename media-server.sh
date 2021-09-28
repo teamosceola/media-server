@@ -249,7 +249,7 @@ services:
       - --set-authorization-header=false
       - --set-basic-auth=false
       - --client-id=sonarr
-      - --client-secret=${KEYCLOAK_TDARR_SECRET}
+      - --client-secret=${KEYCLOAK_SONARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
       - --ssl-insecure-skip-verify=true
@@ -396,7 +396,7 @@ services:
       - --set-authorization-header=false
       - --set-basic-auth=false
       - --client-id=tdarr
-      - --client-secret=${KEYCLOAK_tdarr_SECRET}
+      - --client-secret=${KEYCLOAK_TDARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
       - --ssl-insecure-skip-verify=true
