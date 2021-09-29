@@ -378,9 +378,9 @@ services:
       - TZ=${TZ}
       - UMASK_SET=002
       - nodeID=MainNode
-      - nodeIP=0.0.0.0
+      - nodeIP=tdarr-node
       - nodePort=8267
-      - serverIP=0.0.0.0
+      - serverIP=tdarr
       - serverPort=8266
     volumes:
       - ${CONFIGS_BASE_DIR}/tdarr/server:/app/server
