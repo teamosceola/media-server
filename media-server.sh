@@ -346,15 +346,46 @@ services:
     labels:
       - traefik.enable=false
     container_name: tdarr
+    ports:
+      - 8265:8265
+      - 8266:8266
+      - 8267:8267
     environment:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+      - UMASK_SET=002
       - serverIP=0.0.0.0
       - serverPort=8266
       - webUIPort=8265
     volumes:
       - ${CONFIGS_BASE_DIR}/tdarr/server:/app/server
+      - ${CONFIGS_BASE_DIR}/tdarr/configs:/app/configs
+      - ${CONFIGS_BASE_DIR}/tdarr/logs:/app/logs
+      - ${MEDIA_BASE_DIR}:/media
+      - ${TDARR_TRANSCODE_CACHE}:/temp
+    networks:
+      - apps_protected_net
+    restart: unless-stopped
+  tdarr-node:
+    image: haveagitgat/tdarr_node:latest
+    labels:
+      - traefik.enable=false
+    container_name: tdarr-node
+    environment:
+      - PUID=${USERID}
+      - PGID=${GROUPID}
+      - TZ=${TZ}
+      - UMASK_SET=002
+      - nodeID=MainNode
+      - nodeIP=0.0.0.0
+      - nodePort=8267
+      - serverIP=0.0.0.0
+      - serverPort=8266
+    volumes:
+      - ${CONFIGS_BASE_DIR}/tdarr/server:/app/server
+      - ${CONFIGS_BASE_DIR}/tdarr/configs:/app/configs
+      - ${CONFIGS_BASE_DIR}/tdarr/logs:/app/logs
       - ${MEDIA_BASE_DIR}:/media
       - ${TDARR_TRANSCODE_CACHE}:/temp
     networks:
