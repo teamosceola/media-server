@@ -44,6 +44,7 @@ If you don't want to use [Namecheap](https://www.namecheap.com/), then you are o
 | A + Dynamic DNS Record | backups | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | code-server | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | jellyfin | 127.0.0.1 | Automatic |
+| A + Dynamic DNS Record | netdata | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | ombi | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | overseerr | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | radarr | 127.0.0.1 | Automatic |
@@ -77,12 +78,7 @@ Login to your server and clone this repo by runnig
 git clone https://github.com/teamosceola/media-server.git
 ```
 
-## 6. Edit the variables in `media-server.sh`
-
-Required variables that need setting:
-- `DOMAIN_NAME`
-- `NC_DDNS_PASS`
-- `EMAIL`
+## 6. Edit the variables in `media-server.sh` (Optional)
 
 Optional variables that can be modified, but have default values that will work:
 - `CONFIGS_BASE_DIR=/data/configs`
@@ -96,6 +92,9 @@ Optional variables that can be modified, but have default values that will work:
 ## 7. Run the Script
 
 Running the `media-server.sh` script will do the following:
+- Prompt for Domain Name (first time run only)
+- Prompt for NameCheap DDNS Password (first time run only)
+- Prompt for Email Address (first time run only)
 - Create all the necessary directories
 - Create the `secrets` file, which contains auto-generated secrets for Keycloak (including the password for the `admin` account)
 - Create the `ddclient.conf` file, which is the config file for the dynamic DNS client
@@ -224,7 +223,7 @@ Now add your user accounts to Keycloak.
 | Jellyfin | `https://jellyfin.<your-domain-name-here>` |
 | Keycloak (Admin Console) | `https://auth.<your-domain-name-here>/auth/admin/master/console/` |
 | Keycloak (User Self-Service) | `https://auth.<your-domain-name-here>/auth/realms/user/account/` |
-| Radarr | `https://radarr.<your-domain-name-here>` |
+| Netdata | `https://netdata.<your-domain-name-here>` |
 | Ombi | `https://ombi.<your-domain-name-here>` |
 | Overseerr | `https://overseerr.<your-domain-name-here>` |
 | Radarr | `https://radarr.<your-domain-name-here>` |

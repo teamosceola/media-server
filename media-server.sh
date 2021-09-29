@@ -7,14 +7,6 @@
 ##### Edit the following variables to match your system #####
 #############################################################
 
-### DDNS Variables ###
-# Your domain name (DOMAIN_NAME=example.com)
-DOMAIN_NAME=
-# Your Namecheap Dynamic DNS Password
-NC_DDNS_PASS=
-# The email address that will be used for LetsEncrypt SSL Certs
-EMAIL=
-
 ### Directory locations ###
 # App configs (Recommend using local NVMe or SSD storage)
 CONFIGS_BASE_DIR=/data/configs
@@ -63,6 +55,22 @@ USERID=$(id -u ${USERNAME})
 GROUPID=$(id -g ${USERNAME})
 
 [[ -f ${CONFIGS_BASE_DIR}/secrets ]] && source ${CONFIGS_BASE_DIR}/secrets
+
+if [[ -z $DOMAIN_NAME ]]
+then
+    read -p 'Enter Domain Name: ' DOMAIN_NAME
+    echo "DOMAIN_NAME=$DOMAIN_NAME" >> ${CONFIGS_BASE_DIR}/secrets
+fi
+if [[ -z $NC_DDNS_PASS ]]
+then
+    read -p 'Enter NameCheap DDNS Password: ' NC_DDNS_PASS
+    echo "NC_DDNS_PASS=$NC_DDNS_PASS" >> ${CONFIGS_BASE_DIR}/secrets
+fi
+if [[ -z $EMAIL ]]
+then
+    read -p 'Enter Email Address: ' EMAIL
+    echo "EMAIL=$EMAIL" >> ${CONFIGS_BASE_DIR}/secrets
+fi
 
 if [[ -z $KEYCLOAK_ADMIN_PASSWORD ]]
 then
@@ -114,6 +122,11 @@ then
     KEYCLOAK_JELLYFIN_SECRET=$(uuidgen)
     echo "KEYCLOAK_JELLYFIN_SECRET=$KEYCLOAK_JELLYFIN_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
 fi
+if [[ -z $KEYCLOAK_NETDATA_SECRET ]]
+then
+    KEYCLOAK_NETDATA_SECRET=$(uuidgen)
+    echo "KEYCLOAK_NETDATA_SECRET=$KEYCLOAK_NETDATA_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
+fi
 if [[ -z $KEYCLOAK_MASTER_SECRET ]]
 then
     KEYCLOAK_MASTER_SECRET=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())')
@@ -163,7 +176,7 @@ protocol=namecheap, \\
 server=dynamicdns.park-your-domain.com,	\\
 login=${DOMAIN_NAME}, \\
 password=${NC_DDNS_PASS} \\
-@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},ombi.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME}
+@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},ombi.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME},netdata.${DOMAIN_NAME}
 EOF
 
 # Create acme.json file for letsencrypt
@@ -894,6 +907,81 @@ services:
       - keycloak
       - reverse-proxy
     restart: unless-stopped
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${CONFIGS_BASE_DIR}/netdata/config:/etc/netdata
+      - ${CONFIGS_BASE_DIR}/netdata/lib:/var/lib/netdata
+      - ${CONFIGS_BASE_DIR}/netdata/cache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+    ports:
+      - 19999:19999
+    networks:
+      - apps_protected_net
+    restart: unless-stopped
+  netdata-auth-proxy:
+    image: quay.io/pusher/oauth2_proxy:latest
+    container_name: netdata-auth-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=apps_net
+      - traefik.http.services.netdata_svc.loadbalancer.server.port=4180
+      - traefik.http.services.netdata_svc.loadbalancer.server.scheme=http
+      - traefik.http.routers.netdata.service=netdata_svc
+      - traefik.http.routers.netdata.rule=Host(\`backups.${DOMAIN_NAME}\`)
+      - traefik.http.routers.netdata.entrypoints=websecure
+      - traefik.http.routers.netdata.tls=true
+      - traefik.http.routers.netdata.tls.certresolver=le
+      - traefik.http.routers.netdata-http.entrypoints=web
+      - traefik.http.routers.netdata-http.rule=Host(\`backups.${DOMAIN_NAME}\`)
+      - traefik.http.routers.netdata-http.middlewares=netdata-https-redirect
+      - traefik.http.middlewares.netdata-https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.netdata-https-redirect.redirectscheme.permanent=true
+    command:
+      - --provider=oidc
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
+      - --cookie-secure=true
+      - --cookie-domain=.${DOMAIN_NAME}
+      - --cookie-name=_oauth2_proxy_user
+      - --cookie-samesite=lax
+      - --provider-display-name="Keycloak OIDC"
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --upstream=http://netdata:19999
+      - --skip-provider-button=true
+      - --reverse-proxy=false
+      - --pass-basic-auth=false
+      - --pass-user-headers=false
+      - --set-xauthrequest=false
+      - --set-authorization-header=false
+      - --set-basic-auth=false
+      - --client-id=netdata
+      - --client-secret=${KEYCLOAK_NETDATA_SECRET}
+      - --http-address=0.0.0.0:4180
+      - --email-domain=*
+      - --ssl-insecure-skip-verify=true
+      - --ssl-upstream-insecure-skip-verify=true
+      - --insecure-oidc-allow-unverified-email=true
+      - --insecure-oidc-skip-issuer-verification=true
+      - --session-store-type=redis
+      - --redis-connection-url=redis://redis
+      - --trusted-ip=${APPS_NET_SUBNET}.0.1
+    networks:
+      - apps_net
+      - apps_protected_net
+      - redis
+    depends_on:
+      - netdata
+      - redis
+      - keycloak
+      - reverse-proxy
+    restart: unless-stopped
   postgres:
     image: postgres
     labels:
@@ -1041,6 +1129,7 @@ docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://duplicati.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=netdata -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://netdata.${DOMAIN_NAME} -s secret=${KEYCLOAK_NETDATA_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
 ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r user clients/\${ID} -s 'webOrigins=["*"]'
