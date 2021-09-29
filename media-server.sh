@@ -917,6 +917,8 @@ services:
   netdata:
     image: netdata/netdata:stable
     container_name: netdata
+    labels:
+      - traefik.enable=false
     cap_add:
       - SYS_PTRACE
     volumes:
