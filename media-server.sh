@@ -456,6 +456,7 @@ services:
       - redis
     depends_on:
       - tdarr
+      - tdarr-node
       - redis
       - keycloak
       - reverse-proxy
@@ -935,12 +936,12 @@ services:
       - traefik.http.services.netdata_svc.loadbalancer.server.port=4180
       - traefik.http.services.netdata_svc.loadbalancer.server.scheme=http
       - traefik.http.routers.netdata.service=netdata_svc
-      - traefik.http.routers.netdata.rule=Host(\`backups.${DOMAIN_NAME}\`)
+      - traefik.http.routers.netdata.rule=Host(\`netdata.${DOMAIN_NAME}\`)
       - traefik.http.routers.netdata.entrypoints=websecure
       - traefik.http.routers.netdata.tls=true
       - traefik.http.routers.netdata.tls.certresolver=le
       - traefik.http.routers.netdata-http.entrypoints=web
-      - traefik.http.routers.netdata-http.rule=Host(\`backups.${DOMAIN_NAME}\`)
+      - traefik.http.routers.netdata-http.rule=Host(\`netdata.${DOMAIN_NAME}\`)
       - traefik.http.routers.netdata-http.middlewares=netdata-https-redirect
       - traefik.http.middlewares.netdata-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.netdata-https-redirect.redirectscheme.permanent=true
