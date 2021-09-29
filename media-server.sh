@@ -209,6 +209,10 @@ networks:
   redis:
     name: redis
     internal: true
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
 services:
   sonarr:
     image: ghcr.io/linuxserver/sonarr
@@ -607,6 +611,8 @@ services:
   plex:
     image: ghcr.io/linuxserver/plex
     container_name: plex
+    labels:
+      - traefik.enable=false
     network_mode: host
     environment:
       - PUID=${USERID}
@@ -909,21 +915,26 @@ services:
       - reverse-proxy
     restart: unless-stopped
   netdata:
-    image: netdata/netdata:latest
+    image: netdata/netdata:stable
     container_name: netdata
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${CONFIGS_BASE_DIR}/netdata/config:/etc/netdata
-      - ${CONFIGS_BASE_DIR}/netdata/lib:/var/lib/netdata
-      - ${CONFIGS_BASE_DIR}/netdata/cache:/var/cache/netdata
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
       - /etc/group:/host/etc/group:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOCKER_USR=root
     ports:
       - 19999:19999
+    security_opt:
+      - apparmor:unconfined
     networks:
       - apps_protected_net
     restart: unless-stopped
@@ -1062,6 +1073,8 @@ services:
   wireguard:
     image: ghcr.io/linuxserver/wireguard
     container_name: wireguard
+    labels:
+      - traefik.enable=false
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
