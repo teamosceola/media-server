@@ -1101,11 +1101,16 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
   reverse-proxy:
-    image: traefik:v2.4
+    image: traefik:v2.5
     container_name: reverse-proxy
     command: >
       --api.insecure=true
+      --api.debug=false
+      --api.dashboard=true
+      --log=true
+      --log.level=ERROR
       --providers.docker
+      --providers.docker.network=apps_net
       --entryPoints.web.address=:80
       --entryPoints.websecure.address=:443
       --certificatesresolvers.le.acme.httpchallenge=true
