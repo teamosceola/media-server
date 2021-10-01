@@ -77,6 +77,11 @@ then
     KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
     echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> ${CONFIGS_BASE_DIR}/secrets
 fi
+if [[ -z $POSTGRES_KEYCLOAK_ADMIN_PASSWORD ]]
+then
+    POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
+    echo "POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$POSTGRES_KEYCLOAK_ADMIN_PASSWORD" >> ${CONFIGS_BASE_DIR}/secrets
+fi
 if [[ -z $KEYCLOAK_RADARR_SECRET ]]
 then
     KEYCLOAK_RADARR_SECRET=$(uuidgen)
@@ -1007,7 +1012,7 @@ services:
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
     networks:
       - keycloak_db
     restart: unless-stopped
@@ -1036,7 +1041,7 @@ services:
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
-      DB_PASSWORD: password
+      DB_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_FRONTEND_URL: "https://auth.${DOMAIN_NAME}/auth"
