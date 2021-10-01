@@ -269,7 +269,7 @@ Now add your user accounts to Keycloak.
 
 1. Restore database from backup by running:
     ```
-    docker exec -it postgres-keycloak psql -f postgres-keycloak_upgrade.sql postgres
+    docker exec -it postgres-keycloak psql -f postgres-keycloak_upgrade.sql postgres keycloak
     ```
 
 1. Start the keycloak service by running:
