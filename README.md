@@ -12,7 +12,7 @@ A home media server setup script that uses docker-compose for container orchestr
     - [3. Setup Your Server](#3-setup-your-server)
     - [4. Setup Port Forwarding](#4-setup-port-forwarding)
     - [5. Clone The Repo](#5-clone-the-repo)
-    - [6. Edit the variables in `media-server.sh`](#6-edit-the-variables-in-media-server.sh)
+    - [6. Edit the variables in `media-server.sh`](#6-edit-the-variables---optional)
     - [7. Run the Script](#7-run-the-script)
     - [8. Start the Dynamic DNS Client](#8-start-the-dynamic-dns-client)
     - [9. Startup Keycloak](#9-startup-keycloak)
@@ -20,6 +20,7 @@ A home media server setup script that uses docker-compose for container orchestr
     - [11. Configure SABnzbd](#11-configure-sabnzbd)
 - [User Accounts](#user-accounts)
 - [Access the Services](#access-the-services)
+- [Upgrading Keycloak Postgres Database](#upgrading-keycloak-postgres-database)
 
 # How to Get it Deployed
 
@@ -78,7 +79,7 @@ Login to your server and clone this repo by runnig
 git clone https://github.com/teamosceola/media-server.git
 ```
 
-## 6. Edit the variables in `media-server.sh` (Optional)
+## 6. Edit the variables - Optional
 
 Optional variables that can be modified, but have default values that will work:
 - `CONFIGS_BASE_DIR=/data/configs`
@@ -230,3 +231,48 @@ Now add your user accounts to Keycloak.
 | Sabnzbd | `https://sab.<your-domain-name-here>` |
 | Sonarr | `https://sonarr.<your-domain-name-here>` |
 | Tdarr | `https://Tdarr.<your-domain-name-here>` |
+
+# Upgrading Keycloak Postgres Database
+
+## Upgrading Postgres from one major version to the next major version
+>NOTE: Will use upgrading from 13 to 14 as an example
+
+1. Edit your `docker-compose.yml` file to make sure the postgres image tag is `postgres:13`, then run:
+    ```
+    docker-compose up -d postgres-keycloak
+    ```
+
+1. Stop the keycloak service by running:
+    ```
+    docker-compose stop keycloak
+    ```
+
+1. Create a backup of the postgres database by running:
+    ```
+    docker exec -it postgres-keycloak pg_dumpall -U keycloak > /data/backups/postgres-keycloak_upgrade.sql
+    ```
+
+1. Stop the postgres-keycloak service by running:
+    ```
+    docker-compose stop postgres-keycloak
+    ```
+
+1. Move the old postgres data directory by running:
+    ```
+    mv postgres postgres.old
+    ```
+
+1. Edit your `docker-compose.yml` file to make sure the postgres image tag is now `postgres:14`, then run:
+    ```
+    docker-compose up -d postgres-keycloak
+    ```
+
+1. Restore database from backup by running:
+    ```
+    docker exec -it postgres-keycloak psql -f postgres-keycloak_upgrade.sql postgres
+    ```
+
+1. Start the keycloak service by running:
+    ```
+    docker-compose up -d keycloak
+    ```

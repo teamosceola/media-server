@@ -77,6 +77,11 @@ then
     KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
     echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> ${CONFIGS_BASE_DIR}/secrets
 fi
+if [[ -z $POSTGRES_KEYCLOAK_ADMIN_PASSWORD ]]
+then
+    POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
+    echo "POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$POSTGRES_KEYCLOAK_ADMIN_PASSWORD" >> ${CONFIGS_BASE_DIR}/secrets
+fi
 if [[ -z $KEYCLOAK_RADARR_SECRET ]]
 then
     KEYCLOAK_RADARR_SECRET=$(uuidgen)
@@ -996,17 +1001,18 @@ services:
       - keycloak
       - reverse-proxy
     restart: unless-stopped
-  postgres:
-    image: postgres
+  postgres-keycloak:
+    image: postgres:14
     labels:
       - traefik.enable=false
     container_name: postgres-keycloak
     volumes:
       - ${CONFIGS_BASE_DIR}/postgres:/var/lib/postgresql/data
+      - ${BACKUPS_DIR}:/backups
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
     networks:
       - keycloak_db
     restart: unless-stopped
@@ -1031,11 +1037,11 @@ services:
     container_name: keycloak
     environment:
       DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
+      DB_ADDR: postgres-keycloak
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
-      DB_PASSWORD: password
+      DB_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_FRONTEND_URL: "https://auth.${DOMAIN_NAME}/auth"
@@ -1043,7 +1049,7 @@ services:
       - apps_net
       - keycloak_db
     depends_on:
-      - postgres
+      - postgres-keycloak
       - reverse-proxy
     restart: unless-stopped
   ddclient:
