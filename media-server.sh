@@ -996,13 +996,14 @@ services:
       - keycloak
       - reverse-proxy
     restart: unless-stopped
-  postgres:
-    image: postgres
+  postgres-keycloak:
+    image: postgres:14
     labels:
       - traefik.enable=false
     container_name: postgres-keycloak
     volumes:
       - ${CONFIGS_BASE_DIR}/postgres:/var/lib/postgresql/data
+      - ${BACKUPS_DIR}:/backups
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -1031,7 +1032,7 @@ services:
     container_name: keycloak
     environment:
       DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
+      DB_ADDR: postgres-keycloak
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
@@ -1043,7 +1044,7 @@ services:
       - apps_net
       - keycloak_db
     depends_on:
-      - postgres
+      - postgres-keycloak
       - reverse-proxy
     restart: unless-stopped
   ddclient:
