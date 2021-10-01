@@ -201,6 +201,7 @@ You should leave the default `admin` account exactly as it is.
 Services in the `master` realm:
 - code-server
 - duplicati
+- netdata
 - radarr
 - sabnzbd
 - sonarr
