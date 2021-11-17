@@ -49,10 +49,15 @@ mkdir -p ${INCOMPLETE_DOWNLOADS}
 mkdir -p ${DDCLIENT_CONF_DIR}
 mkdir -p ${BACKUPS_DIR}
 
-USERNAME=$(who | cut -d' ' -f1)
-GROUPNAME=$(id -ng ${USERNAME})
-USERID=$(id -u ${USERNAME})
-GROUPID=$(id -g ${USERNAME})
+# USERNAME=$(who | cut -d' ' -f1)
+# GROUPNAME=$(id -ng ${USERNAME})
+# USERID=$(id -u ${USERNAME})
+# GROUPID=$(id -g ${USERNAME})
+
+USERNAME=root
+GROUPNAME=root
+USERID=0
+GROUPID=0
 
 [[ -f ${CONFIGS_BASE_DIR}/secrets ]] && source ${CONFIGS_BASE_DIR}/secrets
 
@@ -220,7 +225,7 @@ volumes:
   netdatacache:
 services:
   sonarr:
-    image: ghcr.io/linuxserver/sonarr
+    image: ghcr.io/linuxserver/sonarr:latest
     labels:
       - traefik.enable=false
     container_name: sonarr
@@ -292,7 +297,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   radarr:
-    image: ghcr.io/linuxserver/radarr
+    image: ghcr.io/linuxserver/radarr:latest
     labels:
       - traefik.enable=false
     container_name: radarr
@@ -364,7 +369,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   tdarr:
-    image: haveagitgat/tdarr:latest
+    image: docker.io/haveagitgat/tdarr:latest
     labels:
       - traefik.enable=false
     container_name: tdarr
@@ -390,7 +395,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   tdarr-node:
-    image: haveagitgat/tdarr_node:latest
+    image: docker.io/haveagitgat/tdarr_node:latest
     labels:
       - traefik.enable=false
     container_name: tdarr-node
@@ -471,7 +476,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   ombi:
-    image: ghcr.io/linuxserver/ombi
+    image: ghcr.io/linuxserver/ombi:latest
     labels:
       - traefik.enable=false
     container_name: ombi
@@ -542,7 +547,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   sabnzbd:
-    image: ghcr.io/linuxserver/sabnzbd
+    image: ghcr.io/linuxserver/sabnzbd:latest
     labels:
       - traefik.enable=false
     container_name: sabnzbd
@@ -614,7 +619,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   plex:
-    image: ghcr.io/linuxserver/plex
+    image: ghcr.io/linuxserver/plex:latest
     container_name: plex
     labels:
       - traefik.enable=false
@@ -632,7 +637,7 @@ services:
     #   - /dev/dri/card0:/dev/dri/card0
     restart: unless-stopped
   jellyfin:
-    image: ghcr.io/linuxserver/jellyfin
+    image: ghcr.io/linuxserver/jellyfin:latest
     labels:
       - traefik.enable=false
     container_name: jellyfin
@@ -707,7 +712,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   code-server:
-    image: ghcr.io/linuxserver/code-server
+    image: ghcr.io/linuxserver/code-server:latest
     labels:
       - traefik.enable=false
     container_name: code-server
@@ -778,7 +783,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   overseerr:
-    image: sctx/overseerr:latest
+    image: docker.io/sctx/overseerr:latest
     container_name: overseerr
     labels:
       - traefik.enable=false
@@ -847,7 +852,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   duplicati:
-    image: ghcr.io/linuxserver/duplicati
+    image: ghcr.io/linuxserver/duplicati:latest
     container_name: duplicati
     labels:
       - traefik.enable=false
@@ -920,7 +925,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   netdata:
-    image: netdata/netdata:stable
+    image: docker.io/netdata/netdata:stable
     container_name: netdata
     labels:
       - traefik.enable=false
@@ -1002,7 +1007,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   postgres-keycloak:
-    image: postgres:14
+    image: docker.io/library/postgres:14
     labels:
       - traefik.enable=false
     container_name: postgres-keycloak
@@ -1053,7 +1058,7 @@ services:
       - reverse-proxy
     restart: unless-stopped
   ddclient:
-    image: ghcr.io/linuxserver/ddclient
+    image: ghcr.io/linuxserver/ddclient:latest
     labels:
       - traefik.enable=false
     container_name: ddclient
@@ -1067,7 +1072,7 @@ services:
       - apps_net
     restart: unless-stopped
   redis:
-    image: 'bitnami/redis:latest'
+    image: docker.io/bitnami/redis:latest
     container_name: redis
     labels:
       - traefik.enable=false
@@ -1079,7 +1084,7 @@ services:
       - redis
     restart: unless-stopped
   wireguard:
-    image: ghcr.io/linuxserver/wireguard
+    image: ghcr.io/linuxserver/wireguard:latest
     container_name: wireguard
     labels:
       - traefik.enable=false
@@ -1107,7 +1112,7 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
   reverse-proxy:
-    image: traefik:v2.5
+    image: docker.io/library/traefik:v2.5
     container_name: reverse-proxy
     command: >
       --api.insecure=true
