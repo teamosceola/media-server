@@ -1022,7 +1022,7 @@ services:
       - keycloak_db
     restart: unless-stopped
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:16.1.1
     labels:
       - traefik.enable=true
       - traefik.docker.network=apps_net
