@@ -266,7 +266,7 @@ services:
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://sonarr:8989
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -338,7 +338,7 @@ services:
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://radarr:7878
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -444,7 +444,7 @@ services:
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://tdarr:8265
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -516,7 +516,7 @@ services:
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://ombi:3579
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -588,7 +588,7 @@ services:
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://sabnzbd:8080
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -681,7 +681,7 @@ services:
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://jellyfin:8096
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -752,7 +752,7 @@ services:
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://code-server:8443
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -821,7 +821,7 @@ services:
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/user
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://overseerr:5055
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -894,7 +894,7 @@ services:
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://duplicati:8200
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -976,7 +976,7 @@ services:
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/auth/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
       - --upstream=http://netdata:19999
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -1022,7 +1022,7 @@ services:
       - keycloak_db
     restart: unless-stopped
   keycloak:
-    image: quay.io/keycloak/keycloak:16.1.1
+    image: quay.io/keycloak/keycloak:latest
     labels:
       - traefik.enable=true
       - traefik.docker.network=apps_net
@@ -1041,15 +1041,20 @@ services:
       # - traefik.http.middlewares.keycloak-https-redirect.redirectscheme.permanent=true
     container_name: keycloak
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres-keycloak
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KEYCLOAK_FRONTEND_URL: "https://auth.${DOMAIN_NAME}/auth"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB_PASSWORD: ${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}
+    command:
+      - start
+      - --auto-build
+      - --db-schema=public
+      - --db-url-database=keycloak
+      - --db-url-host=postgres-keycloak
+      - --db-username=keycloak
+      - --db=postgres
+      - --http-enabled=true
+      - --hostname=auth.${DOMAIN_NAME}
+      - --proxy=edge
     networks:
       - apps_net
       - keycloak_db
@@ -1160,7 +1165,7 @@ docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=tdarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://tdarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_TDARR_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://duplicati.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
+docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://backups.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=netdata -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://netdata.${DOMAIN_NAME} -s secret=${KEYCLOAK_NETDATA_SECRET}
 docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
 ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
