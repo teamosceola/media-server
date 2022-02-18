@@ -1149,30 +1149,31 @@ EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/keycloak-setup.sh
 #!/bin/bash
-until [[ \$(docker logs keycloak 2> /dev/null | grep 'Admin console listening on http://127.0.0.1:9990' > /dev/null ; echo \$?) -eq "0" ]]
+until [[ \$(docker logs keycloak 2> /dev/null | egrep '^.*\(main\) Keycloak.*on JVM.*started in.*Listening on: http:\/\/0\.0\.0\.0:8080$' > /dev/null ; echo \$?) -eq "0" ]]
 do
         echo "Waiting for Keycloak to finish starting"
         sleep 5
 done
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password '${KEYCLOAK_ADMIN_PASSWORD}'
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update realms/master -s enabled=true -s bruteForceProtected=true
-ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get users -c -r master -q username=admin --fields id --format csv --noquotes)
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update users/\${ID} -s 'email=admin@${DOMAIN_NAME}'
-ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r master -q clientId=account-console --fields id --format csv --noquotes)
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r master clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sonarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_SONARR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://radarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_RADARR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=tdarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://tdarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_TDARR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://backups.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=netdata -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://netdata.${DOMAIN_NAME} -s secret=${KEYCLOAK_NETDATA_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
-ID=\$(docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh update -r user clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=ombi -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://ombi.${DOMAIN_NAME} -s secret=${KEYCLOAK_OMBI_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://overseerr.${DOMAIN_NAME} -s secret=${KEYCLOAK_OVERSEERR_SECRET}
-docker exec keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://jellyfin.${DOMAIN_NAME} -s secret=${KEYCLOAK_JELLYFIN_SECRET}
+sleep 5
+docker exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password '${KEYCLOAK_ADMIN_PASSWORD}'
+docker exec keycloak /opt/keycloak/bin/kcadm.sh update realms/master -s enabled=true -s bruteForceProtected=true
+ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get users -c -r master -q username=admin --fields id --format csv --noquotes)
+docker exec keycloak /opt/keycloak/bin/kcadm.sh update users/\${ID} -s 'email=admin@${DOMAIN_NAME}'
+ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get clients -r master -q clientId=account-console --fields id --format csv --noquotes)
+docker exec keycloak /opt/keycloak/bin/kcadm.sh update -r master clients/\${ID} -s 'webOrigins=["*"]'
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sonarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_SONARR_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://radarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_RADARR_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=tdarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://tdarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_TDARR_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://backups.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=netdata -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://netdata.${DOMAIN_NAME} -s secret=${KEYCLOAK_NETDATA_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
+ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
+docker exec keycloak /opt/keycloak/bin/kcadm.sh update -r user clients/\${ID} -s 'webOrigins=["*"]'
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=ombi -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://ombi.${DOMAIN_NAME} -s secret=${KEYCLOAK_OMBI_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://overseerr.${DOMAIN_NAME} -s secret=${KEYCLOAK_OVERSEERR_SECRET}
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://jellyfin.${DOMAIN_NAME} -s secret=${KEYCLOAK_JELLYFIN_SECRET}
 EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh
