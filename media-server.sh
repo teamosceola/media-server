@@ -209,16 +209,34 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: ${APPS_NET_SUBNET}.0.0/16
+        - subnet: ${APPS_NET_SUBNET}.0.0/24
           gateway: ${APPS_NET_SUBNET}.0.1
   apps_protected_net:
+    driver: bridge
     name: apps_protected_net
+    ipam:
+      driver: default
+      config:
+        - subnet: ${APPS_NET_SUBNET}.1.0/24
+          gateway: ${APPS_NET_SUBNET}.1.1
   keycloak_db:
+    driver: bridge
     name: keycloak_db
     internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: ${APPS_NET_SUBNET}.2.0/24
+          gateway: ${APPS_NET_SUBNET}.2.1
   redis:
+    driver: bridge
     name: redis
     internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: ${APPS_NET_SUBNET}.3.0/24
+          gateway: ${APPS_NET_SUBNET}.3.1
 volumes:
   netdataconfig:
   netdatalib:
