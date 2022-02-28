@@ -409,6 +409,10 @@ services:
       - ${CONFIGS_BASE_DIR}/tdarr/logs:/app/logs
       - ${MEDIA_BASE_DIR}:/media
       - ${TDARR_TRANSCODE_CACHE}:/temp
+    # devices:
+    #   - /dev/dri:/dev/dri
+    #   - /dev/dri/renderD128:/dev/dri/renderD128
+    #   - /dev/dri/card0:/dev/dri/card0
     networks:
       - apps_protected_net
     restart: unless-stopped
@@ -433,6 +437,10 @@ services:
       - ${CONFIGS_BASE_DIR}/tdarr/logs:/app/logs
       - ${MEDIA_BASE_DIR}:/media
       - ${TDARR_TRANSCODE_CACHE}:/temp
+    # devices:
+    #   - /dev/dri:/dev/dri
+    #   - /dev/dri/renderD128:/dev/dri/renderD128
+    #   - /dev/dri/card0:/dev/dri/card0
     networks:
       - apps_protected_net
     restart: unless-stopped
@@ -651,6 +659,7 @@ services:
       - ${TV_MEDIA_DIR}:/tv
       - ${MOVIE_MEDIA_DIR}:/movies
     # devices:
+    #   - /dev/dri:/dev/dri
     #   - /dev/dri/renderD128:/dev/dri/renderD128
     #   - /dev/dri/card0:/dev/dri/card0
     restart: unless-stopped
@@ -670,6 +679,7 @@ services:
     networks:
       - apps_protected_net
     # devices:
+    #   - /dev/dri:/dev/dri
     #   - /dev/dri/renderD128:/dev/dri/renderD128
     #   - /dev/dri/card0:/dev/dri/card0
     restart: unless-stopped
