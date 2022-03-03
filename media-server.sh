@@ -392,9 +392,7 @@ services:
       - traefik.enable=false
     container_name: tdarr
     ports:
-      - 8265:8265
       - 8266:8266
-      - 8267:8267
     environment:
       - PUID=${USERID}
       - PGID=${GROUPID}
@@ -409,10 +407,6 @@ services:
       - ${CONFIGS_BASE_DIR}/tdarr/logs:/app/logs
       - ${MEDIA_BASE_DIR}:/media
       - ${TDARR_TRANSCODE_CACHE}:/temp
-    # devices:
-    #   - /dev/dri:/dev/dri
-    #   - /dev/dri/renderD128:/dev/dri/renderD128
-    #   - /dev/dri/card0:/dev/dri/card0
     networks:
       - apps_protected_net
     restart: unless-stopped
@@ -439,8 +433,6 @@ services:
       - ${TDARR_TRANSCODE_CACHE}:/temp
     # devices:
     #   - /dev/dri:/dev/dri
-    #   - /dev/dri/renderD128:/dev/dri/renderD128
-    #   - /dev/dri/card0:/dev/dri/card0
     networks:
       - apps_protected_net
     restart: unless-stopped
