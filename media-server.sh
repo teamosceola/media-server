@@ -107,11 +107,6 @@ then
     KEYCLOAK_SABNZBD_SECRET=$(uuidgen)
     echo "KEYCLOAK_SABNZBD_SECRET=$KEYCLOAK_SABNZBD_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
 fi
-if [[ -z $KEYCLOAK_OMBI_SECRET ]]
-then
-    KEYCLOAK_OMBI_SECRET=$(uuidgen)
-    echo "KEYCLOAK_OMBI_SECRET=$KEYCLOAK_OMBI_SECRET" >> ${CONFIGS_BASE_DIR}/secrets
-fi
 if [[ -z $KEYCLOAK_OVERSEERR_SECRET ]]
 then
     KEYCLOAK_OVERSEERR_SECRET=$(uuidgen)
@@ -186,7 +181,7 @@ protocol=namecheap, \\
 server=dynamicdns.park-your-domain.com,	\\
 login=${DOMAIN_NAME}, \\
 password=${NC_DDNS_PASS} \\
-@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},ombi.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME},netdata.${DOMAIN_NAME}
+@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME},netdata.${DOMAIN_NAME}
 EOF
 
 # Create acme.json file for letsencrypt
@@ -259,7 +254,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   sonarr-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: sonarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -331,7 +326,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   radarr-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: radarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -437,7 +432,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   tdarr-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: tdarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -493,77 +488,6 @@ services:
       - keycloak
       - reverse-proxy
     restart: unless-stopped
-  ombi:
-    image: ghcr.io/linuxserver/ombi:latest
-    labels:
-      - traefik.enable=false
-    container_name: ombi
-    environment:
-      - PUID=${USERID}
-      - PGID=${GROUPID}
-      - TZ=${TZ}
-      - BASE_URL=/
-    volumes:
-      - ${CONFIGS_BASE_DIR}/ombi:/config
-    networks:
-      - apps_protected_net
-    restart: unless-stopped
-  ombi-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
-    container_name: ombi-auth-proxy
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=apps_net
-      - traefik.http.services.ombi_svc.loadbalancer.server.port=4180
-      - traefik.http.services.ombi_svc.loadbalancer.server.scheme=http
-      - traefik.http.routers.ombi.service=ombi_svc
-      - traefik.http.routers.ombi.rule=Host(\`ombi.${DOMAIN_NAME}\`)
-      - traefik.http.routers.ombi.entrypoints=websecure
-      - traefik.http.routers.ombi.tls=true
-      - traefik.http.routers.ombi.tls.certresolver=le
-      - traefik.http.routers.ombi-http.entrypoints=web
-      - traefik.http.routers.ombi-http.rule=Host(\`ombi.${DOMAIN_NAME}\`)
-      - traefik.http.routers.ombi-http.middlewares=ombi-https-redirect
-      - traefik.http.middlewares.ombi-https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.ombi-https-redirect.redirectscheme.permanent=true
-    command:
-      - --provider=oidc
-      - --cookie-secret=${KEYCLOAK_USER_SECRET}
-      - --cookie-secure=true
-      - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_user
-      - --cookie-samesite=lax
-      - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
-      - --upstream=http://ombi:3579
-      - --skip-provider-button=true
-      - --reverse-proxy=false
-      - --pass-basic-auth=false
-      - --pass-user-headers=false
-      - --set-xauthrequest=false
-      - --set-authorization-header=false
-      - --set-basic-auth=false
-      - --client-id=ombi
-      - --client-secret=${KEYCLOAK_OMBI_SECRET}
-      - --http-address=0.0.0.0:4180
-      - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
-      - --session-store-type=redis
-      - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
-    networks:
-      - apps_net
-      - apps_protected_net
-      - redis
-    depends_on:
-      - ombi
-      - redis
-      - keycloak
-      - reverse-proxy
-    restart: unless-stopped
   sabnzbd:
     image: ghcr.io/linuxserver/sabnzbd:latest
     labels:
@@ -581,7 +505,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   sabnzbd-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: sabnzbd-auth-proxy
     labels:
       - traefik.enable=true
@@ -676,7 +600,7 @@ services:
     #   - /dev/dri/card0:/dev/dri/card0
     restart: unless-stopped
   jellyfin-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: jellyfin-auth-proxy
     labels:
       - traefik.enable=true
@@ -747,7 +671,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   code-server-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: code-server-auth-proxy
     labels:
       - traefik.enable=true
@@ -816,7 +740,7 @@ services:
       - ${CONFIGS_BASE_DIR}/overseerr:/app/config
     restart: unless-stopped
   overseerr-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: overseerr-auth-proxy
     labels:
       - traefik.enable=true
@@ -889,7 +813,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   duplicati-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: duplicati-auth-proxy
     labels:
       - traefik.enable=true
@@ -971,7 +895,7 @@ services:
       - apps_protected_net
     restart: unless-stopped
   netdata-auth-proxy:
-    image: quay.io/pusher/oauth2_proxy:latest
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
     container_name: netdata-auth-proxy
     labels:
       - traefik.enable=true

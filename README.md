@@ -46,7 +46,6 @@ If you don't want to use [Namecheap](https://www.namecheap.com/), then you are o
 | A + Dynamic DNS Record | code-server | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | jellyfin | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | netdata | 127.0.0.1 | Automatic |
-| A + Dynamic DNS Record | ombi | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | overseerr | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | radarr | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | sab | 127.0.0.1 | Automatic |
@@ -209,7 +208,6 @@ Services in the `master` realm:
 
 Services in the `user` realm:
 - jellyfin
-- ombi
 - overseerr
 
 Now add your user accounts to Keycloak. 
@@ -226,7 +224,6 @@ Now add your user accounts to Keycloak.
 | Keycloak (Admin Console) | `https://auth.<your-domain-name-here>/auth/admin/master/console/` |
 | Keycloak (User Self-Service) | `https://auth.<your-domain-name-here>/auth/realms/user/account/` |
 | Netdata | `https://netdata.<your-domain-name-here>` |
-| Ombi | `https://ombi.<your-domain-name-here>` |
 | Overseerr | `https://overseerr.<your-domain-name-here>` |
 | Radarr | `https://radarr.<your-domain-name-here>` |
 | Sabnzbd | `https://sab.<your-domain-name-here>` |
