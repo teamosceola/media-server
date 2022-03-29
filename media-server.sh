@@ -246,6 +246,7 @@ services:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/sonarr:/config
       - ${TV_MEDIA_DIR}:/tv
@@ -272,14 +273,14 @@ services:
       - traefik.http.middlewares.sonarr-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.sonarr-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://sonarr:8989
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -299,6 +300,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://sonarr.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=sonarr:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -318,6 +322,7 @@ services:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/radarr:/config
       - ${MOVIE_MEDIA_DIR}:/movies
@@ -344,14 +349,14 @@ services:
       - traefik.http.middlewares.radarr-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.radarr-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://radarr:7878
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -371,6 +376,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://radarr.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=radarr:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -420,6 +428,7 @@ services:
       - nodePort=8267
       - serverIP=tdarr
       - serverPort=8266
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/tdarr/server:/app/server
       - ${CONFIGS_BASE_DIR}/tdarr/configs:/app/configs
@@ -450,14 +459,14 @@ services:
       - traefik.http.middlewares.tdarr-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.tdarr-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://tdarr:8265
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -477,6 +486,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://tdarr.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=tdarr:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -497,6 +509,7 @@ services:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/sabnzbd:/config
       - ${DOWNLOADS}:/downloads
@@ -523,14 +536,14 @@ services:
       - traefik.http.middlewares.sabnzbd-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.sabnzbd-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://sabnzbd:8080
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -550,6 +563,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://sab.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=sabnzbd:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -618,7 +634,7 @@ services:
       - traefik.http.middlewares.jellyfin-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.jellyfin-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
@@ -645,6 +661,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://jellyfin.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=jellyfin:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -664,6 +683,7 @@ services:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/code-server:/config
       - /data:/data
@@ -689,14 +709,14 @@ services:
       - traefik.http.middlewares.code-server-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.code-server-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://code-server:8443
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -716,6 +736,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://code-server.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=code-server:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -734,6 +757,7 @@ services:
     environment:
       - LOG_LEVEL=info
       - TZ=${TZ}
+    ports: []
     networks:
       - apps_protected_net
     volumes:
@@ -758,7 +782,7 @@ services:
       - traefik.http.middlewares.overseerr-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.overseerr-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
@@ -785,6 +809,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://overseerr.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=overseerr:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -805,6 +832,7 @@ services:
       - PGID=${GROUPID}
       - TZ=${TZ}
       # - CLI_ARGS= #optional
+    ports: []
     volumes:
       - ${CONFIGS_BASE_DIR}/duplicati:/config
       - ${BACKUPS_DIR}:/backups
@@ -831,14 +859,14 @@ services:
       - traefik.http.middlewares.duplicati-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.duplicati-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://duplicati:8200
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -858,6 +886,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://backups.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=duplicati:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -913,14 +944,14 @@ services:
       - traefik.http.middlewares.netdata-https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.netdata-https-redirect.redirectscheme.permanent=true
     command:
-      - --provider=oidc
+      - --provider=keycloak-oidc
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
-      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/master
+      - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
       - --upstream=http://netdata:19999
       - --skip-provider-button=true
       - --reverse-proxy=false
@@ -940,6 +971,9 @@ services:
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
       - --trusted-ip=${APPS_NET_SUBNET}.0.1
+      - --redirect-url=https://netdata.${DOMAIN_NAME}/oauth2/callback
+      - --allowed-role=netdata:client-access
+    ports: []
     networks:
       - apps_net
       - apps_protected_net
@@ -958,6 +992,7 @@ services:
     volumes:
       - ${CONFIGS_BASE_DIR}/postgres:/var/lib/postgresql/data
       - ${BACKUPS_DIR}:/backups
+    ports: []
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -999,6 +1034,7 @@ services:
       - --http-enabled=true
       - --hostname=auth.${DOMAIN_NAME}
       - --proxy=edge
+    ports: []
     networks:
       - apps_net
       - keycloak_db
@@ -1015,6 +1051,7 @@ services:
       - PUID=${USERID}
       - PGID=${GROUPID}
       - TZ=${TZ}
+    ports: []
     volumes:
       - ${DDCLIENT_CONF_DIR}:/config
     networks:
@@ -1029,6 +1066,7 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - ${CONFIGS_BASE_DIR}/redis:/bitnami/redis/data
+    ports: []
     networks:
       - redis
     restart: unless-stopped
@@ -1093,31 +1131,144 @@ EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/keycloak-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/keycloak-setup.sh
 #!/bin/bash
+
+# wait for keycloak to become ready
 until [[ \$(docker logs keycloak 2> /dev/null | egrep '^.*\(main\) Keycloak.*on JVM.*started in.*Listening on: http:\/\/0\.0\.0\.0:8080\$' > /dev/null ; echo \$?) -eq "0" ]]
 do
         echo "Waiting for Keycloak to finish starting"
         sleep 5
 done
 sleep 5
+
+# login
 docker exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password '${KEYCLOAK_ADMIN_PASSWORD}'
+
+# enable brute force protection in master realm
 docker exec keycloak /opt/keycloak/bin/kcadm.sh update realms/master -s enabled=true -s bruteForceProtected=true
+
+# add email to admin user
 ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get users -c -r master -q username=admin --fields id --format csv --noquotes)
 docker exec keycloak /opt/keycloak/bin/kcadm.sh update users/\${ID} -s 'email=admin@${DOMAIN_NAME}'
+
+# fix account managment console in master realm
 ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get clients -r master -q clientId=account-console --fields id --format csv --noquotes)
 docker exec keycloak /opt/keycloak/bin/kcadm.sh update -r master clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=sonarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sonarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_SONARR_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=radarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://radarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_RADARR_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=tdarr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://tdarr.${DOMAIN_NAME} -s secret=${KEYCLOAK_TDARR_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=sabnzbd -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://sab.${DOMAIN_NAME} -s secret=${KEYCLOAK_SABNZBD_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=code-server -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://code-server.${DOMAIN_NAME} -s secret=${KEYCLOAK_CODE_SERVER_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=duplicati -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://backups.${DOMAIN_NAME} -s secret=${KEYCLOAK_DUPLICATI_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=netdata -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://netdata.${DOMAIN_NAME} -s secret=${KEYCLOAK_NETDATA_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
+
+# create user realm
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create realms -s realm=user -s id=user -s enabled=true \
+  -s bruteForceProtected=true -s displayName=Keycloak -s 'displayNameHtml=<div class="kc-logo-text"><span>Keycloak</span></div>'
+
+# fix account managment console in user realm
 ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get clients -r user -q clientId=account-console --fields id --format csv --noquotes)
 docker exec keycloak /opt/keycloak/bin/kcadm.sh update -r user clients/\${ID} -s 'webOrigins=["*"]'
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=ombi -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://ombi.${DOMAIN_NAME} -s secret=${KEYCLOAK_OMBI_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=overseerr -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://overseerr.${DOMAIN_NAME} -s secret=${KEYCLOAK_OVERSEERR_SECRET}
-docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r user -s clientId=jellyfin -s 'redirectUris=["*"]' -s clientAuthenticatorType=client-secret -s alwaysDisplayInConsole=true -s baseUrl=https://jellyfin.${DOMAIN_NAME} -s secret=${KEYCLOAK_JELLYFIN_SECRET}
+
+# function to create and configure keycloak clients
+# creates the client
+# add protocol mappers
+# creates client role
+# creates client group
+# adds client role to client group
+# parameters: 1) client-id, 2) app-fqdn, 3) client-secret
+function create_keycloak_client () {
+    ID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create clients \\
+        -r user \\
+        -s clientId=\$1 \\
+        -s "redirectUris=[\\"https://\$2/oauth2/callback\\"]" \\
+        -s clientAuthenticatorType=client-secret \\
+        -s alwaysDisplayInConsole=true \\
+        -s baseUrl=https://\$2 \\
+        -s secret=\$3 \
+        2>&1 | cut -d"'" -f 2)
+    GID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create groups \\
+        -r user \\
+        -s name=\$1 \
+        2>&1 | cut -d"'" -f 2)
+    echo Created new client \$1 with id \${ID}
+    echo Created new group \$1 with id \${GID}
+    docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create clients/\${ID}/protocol-mappers/models \\
+        -r user \\
+        -s name=groups \\
+        -s 'protocol=openid-connect' \\
+        -s 'protocolMapper=oidc-group-membership-mapper' \\
+        -s 'consentRequired=false' \\
+        -s 'config."full.path"=true' \\
+        -s 'config."id.token.claim"=true' \\
+        -s 'config."access.token.claim"=true' \\
+        -s 'config."claim.name"=groups' \\
+        -s 'config."userinfo.token.claim"=true'
+    docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create clients/\${ID}/protocol-mappers/models \\
+        -r user \\
+        -s name=\$1-audience \\
+        -s 'protocol=openid-connect' \\
+        -s 'protocolMapper=oidc-audience-mapper' \\
+        -s 'consentRequired=false' \\
+        -s "config.\\"included.client.audience\\"=\$1" \\
+        -s 'config."id.token.claim"=false' \\
+        -s 'config."access.token.claim"=true' \\
+        -s 'config."claim.name"=groups' \\
+        -s "config.\\"included.custom.audience\\"=\$1"
+    docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create clients/\${ID}/roles \\
+        -r user \\
+        -s name=client-access \\
+        -s composite=false \\
+        -s clientRole=true
+    docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        add-roles \\
+        -r user \\
+        --gid \${GID} \\
+        --cid \${ID} \\
+        --rolename client-access
+}
+
+# create 'code-server' client
+create_keycloak_client code-server code-server.${DOMAIN_NAME} ${KEYCLOAK_CODE_SERVER_SECRET}
+
+# create 'duplicati' client
+create_keycloak_client duplicati backups.${DOMAIN_NAME} ${KEYCLOAK_DUPLICATI_SECRET}
+
+# create 'jellyfin' client
+create_keycloak_client jellyfin jellyfin.${DOMAIN_NAME} ${KEYCLOAK_JELLYFIN_SECRET}
+
+# create 'netdata' client
+create_keycloak_client netdata netdata.${DOMAIN_NAME} ${KEYCLOAK_NETDATA_SECRET}
+
+# create 'overseerr' client
+create_keycloak_client overseerr overseerr.${DOMAIN_NAME} ${KEYCLOAK_OVERSEERR_SECRET}
+
+# create 'radarr' client
+create_keycloak_client radarr radarr.${DOMAIN_NAME} ${KEYCLOAK_RADARR_SECRET}
+
+# create 'sabnzbd' client
+create_keycloak_client sabnzbd sab.${DOMAIN_NAME} ${KEYCLOAK_SABNZBD_SECRET}
+
+# create 'sonarr' client
+create_keycloak_client sonarr sonarr.${DOMAIN_NAME} ${KEYCLOAK_SONARR_SECRET}
+
+# create 'tdarr' client
+create_keycloak_client tdarr tdarr.${DOMAIN_NAME} ${KEYCLOAK_TDARR_SECRET}
+
+# create 'admin' group
+ADMIN_GID=\$(docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        create groups \\
+        -r user \\
+        -s name=admin 2>&1 \\
+        | cut -d"'" -f 2)
+
+# add client roles to 'admin' group
+for client in \$(docker exec keycloak /opt/keycloak/bin/kcadm.sh get clients -r user --fields id --format csv | cut -d'"' -f 2)
+do
+    docker exec keycloak /opt/keycloak/bin/kcadm.sh \\
+        add-roles \\
+        -r user \\
+        --gid \${ADMIN_GID} \\
+        --cid \${client} \\
+        --rolename client-access 2>&1
+done
 EOF
 
 cat << EOF > ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh && chmod 700 ${CONFIGS_BASE_DIR}/sabnzbd-setup.sh

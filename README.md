@@ -183,7 +183,7 @@ docker-compose restart sabnzbd
 
 # User Accounts
 
-You can now get to the Keycloak Administration Console by browsing to `https://auth.<your-domain-name-here>/auth/`
+You can now get to the Keycloak Administration Console by browsing to `https://auth.<your-domain-name-here>`
 
 Click the Administration Console link, then login with the username `admin`. 
 
@@ -192,37 +192,71 @@ The password for the `admin` account is stored in the `secrets` file. To retriev
 source secrets && echo $KEYCLOAK_ADMIN_PASSWORD
 ```
 
-Keycloak is confiugred with two realms, a `master` realm and a `user` realm.
-Each service is tied to a specific realm, so if you want a user account to have access to all services, you have to create two identical user accounts, one in the `master` realm and one in the `user` realm.
-Most accounts will only exist in the `user` realm, while only the person who owns/administers the server will need the duplicated account in the `master` realm.
+Keycloak is confiugred with two realms, the default `master` realm and the `user` realm, which was created by the script.
+The builtin `admin` account is in the `master` realm and is the only user account in that realm.
+All user accounts that you add will be added to the `user` realm.
+
+There is a `client` and a `group` created for each service in the `user` realm.
+
+User access to each individual service is controlled by group membership.
+
+If you want a user to have access to a particular service, just add their user account to the corresponding group.
+
+There is also an `admin` group, which gives access to all services.
+
 You should leave the default `admin` account exactly as it is.
 
-Services in the `master` realm:
+Services in the `user` realm:
 - code-server
 - duplicati
+- jellyfin
 - netdata
+- overseerr
 - radarr
 - sabnzbd
 - sonarr
 - tdarr
 
-Services in the `user` realm:
+Gropus in the `user` realm:
+- admin
+- code-server
+- duplicati
 - jellyfin
+- netdata
 - overseerr
+- radarr
+- sabnzbd
+- sonarr
+- tdarr
 
-Now add your user accounts to Keycloak. 
+Now add your user accounts to Keycloak.
+
+## Add a new user account
+
+To add a user account, login to the Kecloak Admin Console using the `admin` account, the realm will default to the `user` realm.
+
+In the left-hand pane under Manage, click `Users`, then click the `Add user` button.
+
+Fill out the add user form (email is required), select the groups for the services the user should have access to (listed above), then click save.
+
+You will then see the "Details" page for the new user.
+
+To set a password for the new user, click on the credentials tab, fill out the password fields, then click "Set Password".
 
 >NOTE: An email address is required for the oauth proxy to work even though it is not a required field by Keycloak, so make sure you set an email address for every user account you add.
 
 # Access the Services
+
+>NOTE: you may want to bookmark the "Keycloak (Applications List)" as it has links to all the services
 
 | Service Name | URL |
 | ----- | ----- |
 | Code-Server | `https://code-server.<your-domain-name-here>` |
 | Duplicati | `https://backups.<your-domain-name-here>` |
 | Jellyfin | `https://jellyfin.<your-domain-name-here>` |
-| Keycloak (Admin Console) | `https://auth.<your-domain-name-here>/auth/admin/master/console/` |
-| Keycloak (User Self-Service) | `https://auth.<your-domain-name-here>/auth/realms/user/account/` |
+| Keycloak (Admin Console) | `https://auth.<your-domain-name-here>/admin/master/console/` |
+| Keycloak (User Self-Service) | `https://auth.<your-domain-name-here>/realms/user/account/` |
+| Keycloak (Applications List) | `https://auth.<your-domain-name-here>/realms/user/account/#/applications` |
 | Netdata | `https://netdata.<your-domain-name-here>` |
 | Overseerr | `https://overseerr.<your-domain-name-here>` |
 | Radarr | `https://radarr.<your-domain-name-here>` |
