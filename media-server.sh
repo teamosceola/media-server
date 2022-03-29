@@ -1099,7 +1099,7 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
   reverse-proxy:
-    image: docker.io/library/traefik:v2.5
+    image: docker.io/library/traefik:v2.6
     container_name: reverse-proxy
     command: >
       --api.insecure=true
