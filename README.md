@@ -12,12 +12,13 @@ A home media server setup script that uses docker-compose for container orchestr
     - [3. Setup Your Server](#3-setup-your-server)
     - [4. Setup Port Forwarding](#4-setup-port-forwarding)
     - [5. Clone The Repo](#5-clone-the-repo)
-    - [6. Edit the variables in `media-server.sh`](#6-edit-the-variables---optional)
-    - [7. Run the Script](#7-run-the-script)
-    - [8. Start the Dynamic DNS Client](#8-start-the-dynamic-dns-client)
-    - [9. Startup Keycloak](#9-startup-keycloak)
-    - [10. Deploy all the things](#10-deploy-all-the-things)
-    - [11. Configure SABnzbd](#11-configure-sabnzbd)
+    - [6. Run the Scripts](#7-run-the-scripts)
+        - [a. Vars](#a-vars)
+        - [b. Setup](#b-setup)
+    - [7. Start the Dynamic DNS Client](#8-start-the-dynamic-dns-client)
+    - [8. Startup Keycloak](#9-startup-keycloak)
+    - [9. Deploy all the things](#10-deploy-all-the-things)
+    - [10. Configure SABnzbd](#11-configure-sabnzbd)
 - [User Accounts](#user-accounts)
 - [Access the Services](#access-the-services)
 - [Upgrading Keycloak Postgres Database](#upgrading-keycloak-postgres-database)
@@ -78,32 +79,38 @@ Login to your server and clone this repo by runnig
 git clone https://github.com/teamosceola/media-server.git
 ```
 
-## 6. Edit the variables - Optional
+## 6. Run the Scripts
 
-Optional variables that can be modified, but have default values that will work:
-- `CONFIGS_BASE_DIR=/data/configs`
-- `MEDIA_BASE_DIR=/data/media`
-- `TV_MEDIA_DIR=${MEDIA_BASE_DIR}/tv`
-- `MOVIE_MEDIA_DIR=${MEDIA_BASE_DIR}/movies`
-- `DOWNLOADS=/data/downloads/complete`
-- `INCOMPLETE_DOWNLOADS=/data/downloads/incomplete`
-- `BACKUPS_DIR=/data/backups`
+### a. Vars
 
-## 7. Run the Script
-
-Running the `media-server.sh` script will do the following:
+Running the `vars.sh` script will do the following:
 - Prompt for Domain Name (first time run only)
 - Prompt for NameCheap DDNS Password (first time run only)
 - Prompt for Email Address (first time run only)
-- Create all the necessary directories
-- Create the `secrets` file, which contains auto-generated secrets for Keycloak (including the password for the `admin` account)
-- Create the `ddclient.conf` file, which is the config file for the dynamic DNS client
-- Create you `docker-compose.yml` file
-- Create a customized `keycloak-setup.sh` script that will be used to configure Keycloak after it's been deployed
+- Create the `.env` file, which contains auto-generated secrets for Keycloak (including the password for the `admin` account)
 
-Run the `media-server.sh` script like this
+Run the `vars.sh` script like this
 ```
-./media-server.sh
+./vars.sh
+```
+You should see NO output (except for the prompts, first time run only) if everything worked successfully.
+
+Now that the script has ran and created the `.env` file, you should take a look at it.
+Pretty much all the things in the `docker-compose.yml` file and other scripts are variabalized and use that `.env` as the source for those variables.
+So, if you want to change anything, like directory locations of say your media, now would be the time to change those in the `.env` file before starting any containers.
+
+Also, If there's some service that you don't want to run, now would be the time to comment it out of the `docker-compose.yml` file.
+
+### b. Setup
+
+Running the `setup.sh` script will do the following:
+- Create all the necessary directories
+- Create the `ddclient.conf` file, which is the config file for the dynamic DNS client
+- Create the `letsencrypt/acme.json` file with the correct permissions
+
+Run the `setup.sh` script like this
+```
+sudo ./setup.sh
 ```
 You should see NO output if everything worked successfully.
 
@@ -112,73 +119,113 @@ After running the script (assuming you kept default directory locations), it wil
 /data
 ├── backups
 ├── configs
-│   ├── ddclient
-│   │   └── ddclient.conf
-│   ├── docker-compose.yml
-│   ├── keycloak-setup.sh
-│   ├── letsencrypt
-│   │   └── acme.json
-│   ├── redis
-│   ├── sabnzbd-setup.sh
-│   └── secrets
+│   ├── ddclient
+│   │   └── ddclient.conf
+│   ├── letsencrypt
+│   │   └── acme.json
+│   └── redis
 ├── downloads
-│   ├── complete
-│   └── incomplete
+│   ├── complete
+│   └── incomplete
 └── media
     ├── movies
     └── tv
 ```
 
-## 8. Start the Dynamic DNS Client
+## 7. Start the Dynamic DNS Client
 
-Change to your configs directory (`/data/configs` is the default) and run
+Start the Dynamic DNS client (ddclient) by running
 ```
-docker-compose up -d ddclient
+sudo docker-compose up -d ddclient
 ```
 Then login to your [Namecheap Dashboard](https://ap.www.namecheap.com/dashboard), go to domain management, then the advanced dns tab and verify that the IP address for all the records you added earlier have been updated to your current public IP address.
 
-## 9. Startup Keycloak
+## 8. Startup Keycloak
 
 Start Keycloak by running
 ```
-docker-compose up -d keycloak
+sudo docker-compose up -d keycloak
 ```
 Now that Keycloak is running, run the `keycloak-setup.sh` script like this
 ```
-./keycloak-setup.sh
+sudo ./keycloak-setup.sh
 ```
 The output of this script should look like this:
 ```
 Waiting for Keycloak to finish starting
 ...
 Waiting for Keycloak to finish starting
-Logging into http://localhost:8080/auth as user admin of realm master
-Created new client with id '09eebd13-e063-45cc-86b4-48b6d2ffad7b'
-Created new client with id '35d3a671-c6a8-4362-9dbb-6aa1d277d007'
-Created new client with id 'ccda169a-25df-4f4b-9c02-d66dab1eea5c'
-Created new client with id '8638db46-44a0-4192-be6c-b46af4b46319'
-Created new client with id '17234985-f9fe-4ce2-aaf6-6ff6e8ed95f0'
+Logging into http://localhost:8080 as user admin of realm master
 Created new realm with id 'user'
-Created new client with id '611a256b-f682-4929-9c18-de6f50d202bc'
-Created new client with id '00fdab54-f91d-4082-afb8-6c0ec2034b6c'
-Created new client with id '5ff478fc-ae16-4970-a0e2-1deee4669f30'
+Created new client code-server with id 499387df-6fd8-4e16-96ef-5c05c407d727
+Created new group code-server with id fde71698-ed21-4f39-bbfa-0021cdd65902
+Created new model with id '4a3c2d9c-cb6f-4567-b54f-304b6e07190a'
+Created new model with id '2795c948-fcc3-4cc6-8961-2b5ea0f69e21'
+Created new role with id 'client-access'
+Created new client duplicati with id 0fda4565-5223-43cd-a5fb-ee304e7a9de6
+Created new group duplicati with id faa184dc-6d03-479f-9417-75b64bfc2627
+Created new model with id '3e7a2fb5-ebae-4175-86c6-6c0d195b029f'
+Created new model with id 'a8ddbd2d-758d-4c0d-a731-ebb72a292849'
+Created new role with id 'client-access'
+Created new client jellyfin with id bb470417-2540-4b3e-a49e-06eeddc35b16
+Created new group jellyfin with id d210fadd-cf7c-4f95-bcff-d1f0fbae69a0
+Created new model with id 'd7672db5-ff2c-4d29-8fb1-2383477bfd40'
+Created new model with id '36ae00c7-3c3a-4ceb-b600-46125ba73aca'
+Created new role with id 'client-access'
+Created new client netdata with id 99aa4efe-534f-4fcb-9d06-0de6dd09c605
+Created new group netdata with id b0a4bbaf-e107-45f2-aa40-c57515528759
+Created new model with id 'fad642ad-32c0-4a57-89b0-04a9416c63d3'
+Created new model with id 'f43f08b9-9bb3-4e34-b8e6-ee0afdba0eb2'
+Created new role with id 'client-access'
+Created new client overseerr with id 9f89a298-429c-4d0a-855d-a72c26387edc
+Created new group overseerr with id 1fa61374-8c6d-454b-886f-c059ed8612cd
+Created new model with id '95525409-85a5-4792-ae26-aec917072051'
+Created new model with id '7243207a-c50f-4773-b537-923473de991f'
+Created new role with id 'client-access'
+Created new client radarr with id be67a3d6-0362-4e81-b0d1-ce4da6a364a3
+Created new group radarr with id 4cbb19c4-ce7f-4195-b1da-e80fc5602e22
+Created new model with id '057d9aae-7757-426b-8773-b06b15568ffc'
+Created new model with id 'e6375970-8268-4f03-9c85-f8229a122e85'
+Created new role with id 'client-access'
+Created new client sabnzbd with id aa98f3ff-5ca9-41d8-bfb6-3548964fb27e
+Created new group sabnzbd with id 83f1b6ed-ed6b-4d43-9073-4249fd78f929
+Created new model with id 'dd7b7b83-1663-4fd5-997b-829241704f66'
+Created new model with id 'fb1360bb-8e26-4630-ba98-2362b4d832c4'
+Created new role with id 'client-access'
+Created new client sonarr with id 3f08abf1-f965-4425-a230-ca86173e99ab
+Created new group sonarr with id 33f8d431-ef2a-49e6-8b1a-f50774f932e2
+Created new model with id '564d3ba8-f183-4dd4-a0f2-eac97eda46a4'
+Created new model with id 'e6ff2402-bfd2-4f4b-95aa-a6dd85556a25'
+Created new role with id 'client-access'
+Created new client tdarr with id 80a0d3d3-37f0-43e1-9624-706e49c237fe
+Created new group tdarr with id 620cebae-41d8-4657-a6f2-e75000d7649b
+Created new model with id 'da521e38-4005-4ac9-b74e-0dc58b55f70e'
+Created new model with id 'ace0d5ab-5397-4893-a50c-3f262c9717ca'
+Created new role with id 'client-access'
+Role not found for name: client-access
+Role not found for name: client-access
+Role not found for name: client-access
+Role not found for name: client-access
+Role not found for name: client-access
+Role not found for name: client-access
 ```
+>NOTE: The 6 lines of output at the end like: `Role not found for name: client-access` is expected and OK. This is because the 6 default clients do not have a `client-access` role
 
-## 10. Deploy all the things
+## 9. Deploy all the things
 
 To deploy and start all the remaining services run
 ```
-docker-compose up -d
+sudo docker-compose up -d
 ```
 
-## 11. Configure SABnzbd
+## 10. Configure SABnzbd
 
 ### Fix Host-Verification Failed
 
 To fix the host-verification failed error when trying to acces SABnzbd run
 ```
-./sabnzbd-setup.sh
-docker-compose restart sabnzbd
+sudo ./sabnzbd-setup.sh
+sudo docker-compose restart sabnzbd
 ```
 
 # User Accounts
@@ -189,7 +236,7 @@ Click the Administration Console link, then login with the username `admin`.
 
 The password for the `admin` account is stored in the `secrets` file. To retrieve it run
 ```
-source secrets && echo $KEYCLOAK_ADMIN_PASSWORD
+source .env && echo $KEYCLOAK_ADMIN_PASSWORD
 ```
 
 Keycloak is confiugred with two realms, the default `master` realm and the `user` realm, which was created by the script.
@@ -281,8 +328,10 @@ To set a password for the new user, click on the credentials tab, fill out the p
 
 1. Create a backup of the postgres database by running:
     ```
-    docker exec -it postgres-keycloak pg_dumpall -U keycloak > /data/backups/postgres-keycloak_upgrade.sql
+    docker exec -it postgres-keycloak pg_dumpall -U keycloak -f /backups/postgres-keycloak_upgrade.sql
     ```
+    >NOTE: The directory `/backups` in the postgres container is a persistent volume configured in the `docker-compose.yml` file for this purpose.
+    If you found this guide and are using it for your own setup, you will need to have separate volume attached for the backup.
 
 1. Stop the postgres-keycloak service by running:
     ```
@@ -301,7 +350,7 @@ To set a password for the new user, click on the credentials tab, fill out the p
 
 1. Restore database from backup by running:
     ```
-    docker exec -it postgres-keycloak psql -f postgres-keycloak_upgrade.sql postgres keycloak
+    docker exec -it postgres-keycloak psql -f /backups/postgres-keycloak_upgrade.sql postgres keycloak
     ```
 
 1. Start the keycloak service by running:
