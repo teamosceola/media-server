@@ -284,13 +284,14 @@ To add a user account, login to the Kecloak Admin Console using the `admin` acco
 
 In the left-hand pane under Manage, click `Users`, then click the `Add user` button.
 
-Fill out the add user form (email is required), select the groups for the services the user should have access to (listed above), then click save.
+Fill out the add user form (email is required), check the "Email Verified" box, select the groups for the services the user should have access to (listed above), then click save.
 
 You will then see the "Details" page for the new user.
 
 To set a password for the new user, click on the credentials tab, fill out the password fields, then click "Set Password".
 
 >NOTE: An email address is required for the oauth proxy to work even though it is not a required field by Keycloak, so make sure you set an email address for every user account you add.
+    Also, you must select the "Email Verified" box or oauth proxy will return a 500 error.
 
 # Access the Services
 

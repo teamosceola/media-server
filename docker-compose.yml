@@ -96,13 +96,8 @@ services:
       - --client-secret=${KEYCLOAK_SONARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://sonarr.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=sonarr:client-access
     ports: []
@@ -172,13 +167,8 @@ services:
       - --client-secret=${KEYCLOAK_RADARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://radarr.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=radarr:client-access
     ports: []
@@ -282,13 +272,8 @@ services:
       - --client-secret=${KEYCLOAK_TDARR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://tdarr.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=tdarr:client-access
     ports: []
@@ -359,13 +344,8 @@ services:
       - --client-secret=${KEYCLOAK_SABNZBD_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://sab.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=sabnzbd:client-access
     ports: []
@@ -457,13 +437,8 @@ services:
       - --client-secret=${KEYCLOAK_JELLYFIN_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://jellyfin.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=jellyfin:client-access
     ports: []
@@ -532,13 +507,8 @@ services:
       - --client-secret=${KEYCLOAK_CODE_SERVER_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://code-server.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=code-server:client-access
     ports: []
@@ -605,13 +575,8 @@ services:
       - --client-secret=${KEYCLOAK_OVERSEERR_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://overseerr.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=overseerr:client-access
     ports: []
@@ -681,13 +646,8 @@ services:
       - --client-secret=${KEYCLOAK_DUPLICATI_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://backups.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=duplicati:client-access
     ports: []
@@ -766,13 +726,8 @@ services:
       - --client-secret=${KEYCLOAK_NETDATA_SECRET}
       - --http-address=0.0.0.0:4180
       - --email-domain=*
-      - --ssl-insecure-skip-verify=true
-      - --ssl-upstream-insecure-skip-verify=true
-      - --insecure-oidc-allow-unverified-email=true
-      - --insecure-oidc-skip-issuer-verification=true
       - --session-store-type=redis
       - --redis-connection-url=redis://redis
-      - --trusted-ip=${APPS_NET_SUBNET}.0.1
       - --redirect-url=https://netdata.${DOMAIN_NAME}/oauth2/callback
       - --allowed-role=netdata:client-access
     ports: []
