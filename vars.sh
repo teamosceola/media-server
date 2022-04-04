@@ -92,15 +92,6 @@ function update_env_file {
 
 [[ -z $DDCLIENT_CONF_DIR ]] && DDCLIENT_CONF_DIR=${CONFIGS_BASE_DIR}/ddclient
 
-# Ensure Base Directories exist
-mkdir -p ${CONFIGS_BASE_DIR}
-mkdir -p ${TV_MEDIA_DIR}
-mkdir -p ${MOVIE_MEDIA_DIR}
-mkdir -p ${DOWNLOADS}
-mkdir -p ${INCOMPLETE_DOWNLOADS}
-mkdir -p ${DDCLIENT_CONF_DIR}
-mkdir -p ${BACKUPS_DIR}
-
 # USERNAME=$(who | cut -d' ' -f1)
 # GROUPNAME=$(id -ng ${USERNAME})
 # USERID=$(id -u ${USERNAME})
