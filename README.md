@@ -63,6 +63,11 @@ Requirements:
 - docker-compose
 - python3
 
+Make sure to install Docker using the Official install methods from [here](https://docs.docker.com/engine/install/#server)
+Don't install docker from Ubuntu's included repos.
+
+And install docker-compose from [here](https://docs.docker.com/compose/install/)
+
 Run `sudo apt update && sudo apt upgrade -y` then reboot to make sure you are fully updated
 
 Configure your firewall. At a minimum you will want TCP ports 22, 80, and 443 open. It's also nice to open TCP port 8080, which is the [Traefik](https://github.com/traefik/traefik) dashboard.
