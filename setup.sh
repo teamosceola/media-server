@@ -13,6 +13,20 @@ mkdir -p ${DOWNLOADS}
 mkdir -p ${INCOMPLETE_DOWNLOADS}
 mkdir -p ${DDCLIENT_CONF_DIR}
 mkdir -p ${BACKUPS_DIR}
+mkdir -p ${TDARR_TRANSCODE_CACHE}
+
+mkdir -p ${CONFIGS_BASE_DIR}/{sonarr,radarr,sabnzbd,overseerr,tdarr,code-server,jellyfin,plex,wireguard,duplicati}
+
+chown -R ${USERNAME}:${GROUPNAME} \
+      ${CONFIGS_BASE_DIR} \
+      ${MEDIA_BASE_DIR} \
+      ${TV_MEDIA_DIR} \
+      ${MOVIE_MEDIA_DIR} \
+      ${DOWNLOADS} \
+      $(dirname ${DOWNLOADS}) \
+      ${INCOMPLETE_DOWNLOADS} \
+      ${BACKUPS_DIR} \
+      ${TDARR_TRANSCODE_CACHE}
 
 if [[ ${USE_S3_MEDIA} == "true" ]]
 then
@@ -24,11 +38,12 @@ then
     echo "${S3_BUCKET_NAME} ${MEDIA_BASE_DIR} fuse.s3fs _netdev,allow_other,use_path_request_style,url=https://${S3_URI}/ 0 0"
   fi
   mkdir -p ${MEDIA_BASE_DIR}
+  chown ${USERNAME}:${GROUPNAME} ${MEDIA_BASE_DIR}
   mount -a
 fi
 
 # Create ddclient.conf config file
-cat << EOF > ${DDCLIENT_CONF_DIR}/ddclient.conf && chown ${USERNAME}:${GROUPNAME} ${DDCLIENT_CONF_DIR}/ddclient.conf && chmod 640 ${DDCLIENT_CONF_DIR}/ddclient.conf
+cat << EOF > ${DDCLIENT_CONF_DIR}/ddclient.conf
 daemon=300
 syslog=yes
 pid=/var/run/ddclient/ddclient.pid
@@ -38,17 +53,39 @@ protocol=namecheap, \\
 server=dynamicdns.park-your-domain.com,	\\
 login=${DOMAIN_NAME}, \\
 password=${NC_DDNS_PASS} \\
-@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME},netdata.${DOMAIN_NAME}
+@.${DOMAIN_NAME},jellyfin.${DOMAIN_NAME},plex.${DOMAIN_NAME},radarr.${DOMAIN_NAME},sonarr.${DOMAIN_NAME},code-server.${DOMAIN_NAME},sab.${DOMAIN_NAME},auth.${DOMAIN_NAME},overseerr.${DOMAIN_NAME},backups.${DOMAIN_NAME},tdarr.${DOMAIN_NAME},netdata.${DOMAIN_NAME}
 EOF
+chown ${USERNAME}:${GROUPNAME} ${DDCLIENT_CONF_DIR}/ddclient.conf
+chmod 640 ${DDCLIENT_CONF_DIR}/ddclient.conf
 
 # Create acme.json file for letsencrypt
 mkdir -p ${CONFIGS_BASE_DIR}/letsencrypt
 touch ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 chmod 600 ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
+[[ -f ./acme.json ]] && cp ./acme.json ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 
-# Create redis directorie and set permissions
-mkdir -p ${CONFIGS_BASE_DIR}/redis
-chmod -R 777 ${CONFIGS_BASE_DIR}/redis
+
+# Create docker-compose.override.yml
+if [[ ! -f docker-compose.override.yml ]]
+then
+cat << EOF > docker-compose.override.yml
+---
+services:
+  plex:
+    environment:
+      - PLEX_CLAIM=
+    devices:
+      - /dev/dri:/dev/dri
+  tdarr-node:
+    devices:
+      - /dev/dri:/dev/dri
+  jellyfin:
+    devices:
+      - /dev/dri:/dev/dri
+
+EOF
+fi
+chown ${USERNAME}:${GROUPNAME} docker-compose.override.yml
 
 exit 0

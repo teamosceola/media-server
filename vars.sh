@@ -61,20 +61,27 @@ function update_env_file {
     add_var_to_env_file KEYCLOAK_USER_SECRET ${KEYCLOAK_USER_SECRET}
     add_var_to_env_file WIREGUARD_INTERNAL_SUBNET ${WIREGUARD_INTERNAL_SUBNET}
     add_var_to_env_file APPS_NET_SUBNET ${APPS_NET_SUBNET}
+    add_var_to_env_file LAN_IP ${LAN_IP}
+    add_var_to_env_file DOCKER_GID ${DOCKER_GID}
 }
 
 ### Directory locations ###
+
 # App configs (Recommend using local NVMe or SSD storage)
 [[ -z $CONFIGS_BASE_DIR ]] && CONFIGS_BASE_DIR=/data/configs
+
 # Media (Mass Bulk Storage, could be network attached or local)
 [[ -z $MEDIA_BASE_DIR ]] && MEDIA_BASE_DIR=/data/media
 [[ -z $TV_MEDIA_DIR ]] && TV_MEDIA_DIR=${MEDIA_BASE_DIR}/tv
 [[ -z $MOVIE_MEDIA_DIR ]] && MOVIE_MEDIA_DIR=${MEDIA_BASE_DIR}/movies
+
 # Downloads (Recommend using local direct attached storage)
 [[ -z $DOWNLOADS ]] && DOWNLOADS=/data/downloads/complete
 [[ -z $INCOMPLETE_DOWNLOADS ]] && INCOMPLETE_DOWNLOADS=/data/downloads/incomplete
+
 # Transcode Cache for Tdarr (Recommend using local direct attached storage)
 [[ -z $TDARR_TRANSCODE_CACHE ]] && TDARR_TRANSCODE_CACHE=/data/transcode_cache
+
 # Backups (destination for duplicati backups of App configs)
 [[ -z $BACKUPS_DIR ]] && BACKUPS_DIR=/data/backups
 
@@ -92,88 +99,34 @@ function update_env_file {
 
 [[ -z $DDCLIENT_CONF_DIR ]] && DDCLIENT_CONF_DIR=${CONFIGS_BASE_DIR}/ddclient
 
-# USERNAME=$(who | cut -d' ' -f1)
-# GROUPNAME=$(id -ng ${USERNAME})
-# USERID=$(id -u ${USERNAME})
-# GROUPID=$(id -g ${USERNAME})
+[[ -z $USERNAME ]] && USERNAME=$(who | cut -d' ' -f1)
+[[ -z $GROUPNAME ]] && GROUPNAME=$(id -ng ${USERNAME})
+[[ -z $USERID ]] && USERID=$(id -u ${USERNAME})
+[[ -z $GROUPID ]] && GROUPID=$(id -g ${USERNAME})
 
-[[ -z $USERNAME ]] && USERNAME=root
-[[ -z $GROUPNAME ]] && GROUPNAME=root
-[[ -z $USERID ]] && USERID=0
-[[ -z $GROUPID ]] && GROUPID=0
+[[ -z $DOCKER_GID ]] && DOCKER_GID=$(cat /etc/group | grep docker | cut -d':' -f 3)
 
-if [[ -z $DOMAIN_NAME ]]
-then
-    read -p 'Enter Domain Name: ' DOMAIN_NAME
-fi
-if [[ -z $NC_DDNS_PASS ]]
-then
-    read -p 'Enter NameCheap DDNS Password: ' NC_DDNS_PASS
-fi
-if [[ -z $EMAIL ]]
-then
-    read -p 'Enter Email Address: ' EMAIL
-fi
-if [[ -z $KEYCLOAK_ADMIN_PASSWORD ]]
-then
-    KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
-fi
-if [[ -z $POSTGRES_KEYCLOAK_ADMIN_PASSWORD ]]
-then
-    POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
-fi
-if [[ -z $KEYCLOAK_RADARR_SECRET ]]
-then
-    KEYCLOAK_RADARR_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_SONARR_SECRET ]]
-then
-    KEYCLOAK_SONARR_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_TDARR_SECRET ]]
-then
-    KEYCLOAK_TDARR_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_SABNZBD_SECRET ]]
-then
-    KEYCLOAK_SABNZBD_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_OVERSEERR_SECRET ]]
-then
-    KEYCLOAK_OVERSEERR_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_CODE_SERVER_SECRET ]]
-then
-    KEYCLOAK_CODE_SERVER_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_DUPLICATI_SECRET ]]
-then
-    KEYCLOAK_DUPLICATI_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_JELLYFIN_SECRET ]]
-then
-    KEYCLOAK_JELLYFIN_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_NETDATA_SECRET ]]
-then
-    KEYCLOAK_NETDATA_SECRET=$(uuidgen)
-fi
-if [[ -z $KEYCLOAK_MASTER_SECRET ]]
-then
-    KEYCLOAK_MASTER_SECRET=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())')
-fi
-if [[ -z $KEYCLOAK_USER_SECRET ]]
-then
-    KEYCLOAK_USER_SECRET=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())')
-fi
-if [[ -z $WIREGUARD_INTERNAL_SUBNET ]]
-then
-    WIREGUARD_INTERNAL_SUBNET=10.$(shuf -i 1-255 -n 1).$(shuf -i 1-255 -n 1).0
-fi
-if [[ -z $APPS_NET_SUBNET ]]
-then
-    APPS_NET_SUBNET=172.$(shuf -i 20-30 -n 1)
-fi
+NIC=$(ip route show | grep default | cut -d' ' -f 5)
+[[ -z $LAN_IP ]] && LAN_IP=$(ip addr show ${NIC} | egrep '^\s*inet (.*)\/.*$' | sed -r 's/^\s*inet (.*)\/.*$/\1/g')
+
+[[ -z $DOMAIN_NAME ]] && read -p 'Enter Domain Name: ' DOMAIN_NAME
+[[ -z $NC_DDNS_PASS ]] && read -p 'Enter NameCheap DDNS Password: ' NC_DDNS_PASS
+[[ -z $EMAIL ]] && read -p 'Enter Email Address: ' EMAIL
+[[ -z $KEYCLOAK_ADMIN_PASSWORD ]] && KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
+[[ -z $POSTGRES_KEYCLOAK_ADMIN_PASSWORD ]] && POSTGRES_KEYCLOAK_ADMIN_PASSWORD=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')
+[[ -z $KEYCLOAK_RADARR_SECRET ]] && KEYCLOAK_RADARR_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_SONARR_SECRET ]] && KEYCLOAK_SONARR_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_TDARR_SECRET ]] && KEYCLOAK_TDARR_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_SABNZBD_SECRET ]] && KEYCLOAK_SABNZBD_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_OVERSEERR_SECRET ]] && KEYCLOAK_OVERSEERR_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_CODE_SERVER_SECRET ]] && KEYCLOAK_CODE_SERVER_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_DUPLICATI_SECRET ]] && KEYCLOAK_DUPLICATI_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_JELLYFIN_SECRET ]] && KEYCLOAK_JELLYFIN_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_NETDATA_SECRET ]] && KEYCLOAK_NETDATA_SECRET=$(uuidgen)
+[[ -z $KEYCLOAK_MASTER_SECRET ]] && KEYCLOAK_MASTER_SECRET=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())')
+[[ -z $KEYCLOAK_USER_SECRET ]] && KEYCLOAK_USER_SECRET=$(python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())')
+[[ -z $WIREGUARD_INTERNAL_SUBNET ]] && WIREGUARD_INTERNAL_SUBNET=10.$(shuf -i 1-255 -n 1).$(shuf -i 1-255 -n 1).0
+[[ -z $APPS_NET_SUBNET ]] && APPS_NET_SUBNET=172.$(shuf -i 20-30 -n 1)
 
 # needs to be last
 update_env_file
