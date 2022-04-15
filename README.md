@@ -20,8 +20,6 @@ A home media server setup script that uses docker-compose for container orchestr
     - [9. Deploy all the things](#10-deploy-all-the-things)
     - [10. Configure SABnzbd](#11-configure-sabnzbd)
     - [11. Setup Plex](#11-setup-plex)
-        - [Claim Plex Server](#claim-plex-server)
-        - [Configure Plex Remote Access](#configure-plex-remote-access)
 - [User Accounts](#user-accounts)
 - [Access the Services](#access-the-services)
 - [Upgrading Keycloak Postgres Database](#upgrading-keycloak-postgres-database)
@@ -245,16 +243,14 @@ To fix the host-verification failed error when trying to acces SABnzbd run
 
 ## 11. Setup Plex
 
-### Claim Plex Server
+Go to [plex.tv/claim](https://plex.tv/claim), copy your claim token and set it in `docker-compose.override.yml`.
 
-Go to [plex.tv/claim](https://plex.tv/claim), copy your claim token and set in `docker-compose.override.yml`, then run `docker-compose up -d`.
-Then goto `https://plex.<your-domain-name>` and go through the setup wizard.
+Then run:
+```
+./plex-setup.sh
+```
 
-### Configure Plex Remote Access
-
-In the plex server settings, click "Show Advanced", then on the "Remote Access" tab, check "Manually specify public port" and set to 443.
-
-In the plex server settings, on the Network tab, fill in the "Custom server access URLs" with `https://plex.<your-domain-name>:443`.
+Then goto `https://plex.<your-domain-name>` and add your libraries.
 
 # User Accounts
 
