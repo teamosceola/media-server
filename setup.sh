@@ -59,11 +59,11 @@ chown ${USERNAME}:${GROUPNAME} ${DDCLIENT_CONF_DIR}/ddclient.conf
 chmod 640 ${DDCLIENT_CONF_DIR}/ddclient.conf
 
 # Create acme.json file for letsencrypt
+mkdir -p ${CONFIGS_BASE_DIR}/letsencrypt
 if [[ ! -f ${CONFIGS_BASE_DIR}/letsencrypt/acme.json ]]
 then
   [[ -f ./acme.json ]] && cp ./acme.json ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 fi
-mkdir -p ${CONFIGS_BASE_DIR}/letsencrypt
 touch ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 chmod 600 ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
 chown ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}/letsencrypt/acme.json
