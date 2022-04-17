@@ -19,6 +19,7 @@ A home media server setup script that uses docker-compose for container orchestr
     - [8. Startup Keycloak](#9-startup-keycloak)
     - [9. Deploy all the things](#10-deploy-all-the-things)
     - [10. Configure SABnzbd](#11-configure-sabnzbd)
+    - [11. Setup Plex](#11-setup-plex)
 - [User Accounts](#user-accounts)
 - [Access the Services](#access-the-services)
 - [Upgrading Keycloak Postgres Database](#upgrading-keycloak-postgres-database)
@@ -48,6 +49,7 @@ If you don't want to use [Namecheap](https://www.namecheap.com/), then you are o
 | A + Dynamic DNS Record | jellyfin | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | netdata | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | overseerr | 127.0.0.1 | Automatic |
+| A + Dynamic DNS Record | plex | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | radarr | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | sab | 127.0.0.1 | Automatic |
 | A + Dynamic DNS Record | sonarr | 127.0.0.1 | Automatic |
@@ -112,6 +114,7 @@ Running the `setup.sh` script will do the following:
 - Create all the necessary directories
 - Create the `ddclient.conf` file, which is the config file for the dynamic DNS client
 - Create the `letsencrypt/acme.json` file with the correct permissions
+- Create the `docker-compose.override.yml` file if it doesn't already exist
 
 Run the `setup.sh` script like this
 ```
@@ -124,34 +127,40 @@ After running the script (assuming you kept default directory locations), it wil
 /data
 ├── backups
 ├── configs
+│   ├── code-server
 │   ├── ddclient
 │   │   └── ddclient.conf
+│   ├── duplicati
+│   ├── jellyfin
 │   ├── letsencrypt
 │   │   └── acme.json
-│   └── redis
+│   ├── overseerr
+│   ├── plex
+│   ├── radarr
+│   ├── sabnzbd
+│   ├── sonarr
+│   ├── tdarr
+│   └── wireguard
 ├── downloads
 │   ├── complete
 │   └── incomplete
-└── media
-    ├── movies
-    └── tv
+├── media
+│   ├── complete
+│   └── incomplete
+└── transcode_cache
 ```
 
 ## 7. Start the Dynamic DNS Client
 
 Start the Dynamic DNS client (ddclient) by running
 ```
-sudo docker-compose up -d ddclient
+docker-compose up -d ddclient
 ```
 Then login to your [Namecheap Dashboard](https://ap.www.namecheap.com/dashboard), go to domain management, then the advanced dns tab and verify that the IP address for all the records you added earlier have been updated to your current public IP address.
 
 ## 8. Startup Keycloak
 
-Start Keycloak by running
-```
-sudo docker-compose up -d keycloak
-```
-Now that Keycloak is running, run the `keycloak-setup.sh` script like this
+Start Keycloak by running the `keycloak-setup.sh` script like this
 ```
 sudo ./keycloak-setup.sh
 ```
@@ -229,9 +238,19 @@ sudo docker-compose up -d
 
 To fix the host-verification failed error when trying to acces SABnzbd run
 ```
-sudo ./sabnzbd-setup.sh
-sudo docker-compose restart sabnzbd
+./sabnzbd-setup.sh
 ```
+
+## 11. Setup Plex
+
+Go to [plex.tv/claim](https://plex.tv/claim), copy your claim token and set it in `docker-compose.override.yml`.
+
+Then run:
+```
+./plex-setup.sh
+```
+
+Then goto `https://plex.<your-domain-name>` and add your libraries.
 
 # User Accounts
 

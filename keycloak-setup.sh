@@ -1,5 +1,33 @@
 #!/bin/bash
+
+# Elevate to root privileges if not already
+[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+
 source .env
+
+# start postgres
+ID=$(docker run -d --rm \
+        -v ${CONFIGS_BASE_DIR}/postgres:/var/lib/postgresql/data \
+        -e POSTGRES_DB=keycloak \
+        -e POSTGRES_USER=keycloak \
+        -e "POSTGRES_PASSWORD=${POSTGRES_KEYCLOAK_ADMIN_PASSWORD}" \
+        docker.io/library/postgres:14)
+
+# wait for postgres to become ready
+until [[ $(docker logs ${ID} 2> /dev/null | egrep '^.*database system is ready to accept connections.*$' > /dev/null ; echo $?) -eq "0" ]]
+do
+        echo "Waiting for Postgres to finish Initializing"
+        sleep 2
+done
+
+# stop postgres
+docker container stop ${ID}
+
+# change ownership of postgres data directory
+chown -R ${USERNAME}:${GROUPNAME} ${CONFIGS_BASE_DIR}
+
+# startup keycloak
+docker-compose up -d keycloak
 
 # wait for keycloak to become ready
 until [[ $(docker logs keycloak 2> /dev/null | egrep '^.*\(main\) Keycloak.*on JVM.*started in.*Listening on: http://0\.0\.0\.0:8080$' > /dev/null ; echo $?) -eq "0" ]]
