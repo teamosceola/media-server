@@ -20,7 +20,7 @@ fi
 
 if [[ ! $(egrep '^.*customConnections=.*$' ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml) ]]
 then
-    sed -r -i "s/^(<Preferences .*)(\/>)$/\1 customConnections=\"https:\/\/plex.${DOMAIN_NAME}:443\"\2/g" ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
+    sed -r -i "s/^(<Preferences .*)(\/>)$/\1 customConnections=\"https:\/\/plex.${DOMAIN_NAME}:443,https:\/\/${LAN_IP}:32400\/web,http:\/\/${LAN_IP}:32400\/web\"\2/g" ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
 fi
 
 if [[ ! $(egrep '^.*PublishServerOnPlexOnlineKey=.*$' ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml) ]]
@@ -46,6 +46,16 @@ fi
 if [[ ! $(egrep '^.*TranscoderTempDirectory=.*$' ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml) ]]
 then
     sed -r -i "s/^(<Preferences .*)(\/>)$/\1 TranscoderTempDirectory=\"\/transcode\"\2/g" ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
+fi
+
+if [[ ! $(egrep '^.*LanNetworksBandwidth==.*$' ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml) ]]
+then
+    sed -r -i "s/^(<Preferences .*)(\/>)$/\1 LanNetworksBandwidth==\"10.0.0.0\/8,172.16.10.0\/12,192.168.0.0\/16\"\2/g" ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
+fi
+
+if [[ ! $(egrep '^.*allowedNetworks===.*$' ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml) ]]
+then
+    sed -r -i "s/^(<Preferences .*)(\/>)$/\1 allowedNetworks===\"10.0.0.0\/8,172.16.10.0\/12,192.168.0.0\/16\"\2/g" ${CONFIGS_BASE_DIR}/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
 fi
 
 docker-compose up -d plex
