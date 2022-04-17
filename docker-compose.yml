@@ -63,7 +63,6 @@ services:
     restart: unless-stopped
   sonarr-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: sonarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -135,7 +134,6 @@ services:
     restart: unless-stopped
   radarr-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: radarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -239,7 +237,6 @@ services:
     restart: unless-stopped
   tdarr-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: tdarr-auth-proxy
     labels:
       - traefik.enable=true
@@ -312,7 +309,6 @@ services:
     restart: unless-stopped
   sabnzbd-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: sabnzbd-auth-proxy
     labels:
       - traefik.enable=true
@@ -427,7 +423,6 @@ services:
     restart: unless-stopped
   jellyfin-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: jellyfin-auth-proxy
     labels:
       - traefik.enable=true
@@ -498,7 +493,6 @@ services:
     restart: unless-stopped
   code-server-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: code-server-auth-proxy
     labels:
       - traefik.enable=true
@@ -568,7 +562,6 @@ services:
     restart: unless-stopped
   overseerr-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: overseerr-auth-proxy
     labels:
       - traefik.enable=true
@@ -627,8 +620,8 @@ services:
     labels:
       - traefik.enable=false
     environment:
-      - PUID=${USERID}
-      - PGID=${GROUPID}
+      - PUID=0
+      - PGID=0
       - TZ=${TZ}
     ports: []
     volumes:
@@ -640,7 +633,6 @@ services:
     restart: unless-stopped
   duplicati-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: duplicati-auth-proxy
     labels:
       - traefik.enable=true
@@ -721,7 +713,6 @@ services:
     restart: unless-stopped
   netdata-auth-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    user: ${USERID}:${GROUPID}
     container_name: netdata-auth-proxy
     labels:
       - traefik.enable=true
@@ -793,7 +784,6 @@ services:
     restart: unless-stopped
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    user: ${USERID}:${GROUPID}
     labels:
       - traefik.enable=true
       - traefik.docker.network=apps_net
