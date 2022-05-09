@@ -145,8 +145,8 @@ After running the script (assuming you kept default directory locations), it wil
 │   ├── complete
 │   └── incomplete
 ├── media
-│   ├── complete
-│   └── incomplete
+│   ├── movies
+│   └── tv
 └── transcode_cache
 ```
 
