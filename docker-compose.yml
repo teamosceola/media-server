@@ -81,7 +81,7 @@ services:
       - traefik.http.middlewares.sonarr-https-redirect.redirectscheme.permanent=true
     command:
       - --provider=keycloak-oidc
-      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
@@ -152,7 +152,7 @@ services:
       - traefik.http.middlewares.radarr-https-redirect.redirectscheme.permanent=true
     command:
       - --provider=keycloak-oidc
-      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
@@ -253,7 +253,7 @@ services:
       - traefik.http.middlewares.tdarr-https-redirect.redirectscheme.permanent=true
     command:
       - --provider=keycloak-oidc
-      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
@@ -325,7 +325,7 @@ services:
       - traefik.http.middlewares.sabnzbd-https-redirect.redirectscheme.permanent=true
     command:
       - --provider=keycloak-oidc
-      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
@@ -509,7 +509,7 @@ services:
       - traefik.http.middlewares.code-server-https-redirect.redirectscheme.permanent=true
     command:
       - --provider=keycloak-oidc
-      - --cookie-secret=${KEYCLOAK_MASTER_SECRET}
+      - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
       - --cookie-name=_oauth2_proxy_master
