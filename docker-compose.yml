@@ -221,8 +221,6 @@ services:
       - TZ=${TZ}
       - UMASK_SET=002
       - nodeID=MainNode
-      - nodeIP=tdarr-node
-      - nodePort=8267
       - serverIP=tdarr
       - serverPort=8266
     ports: []
