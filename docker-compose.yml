@@ -84,7 +84,7 @@ services:
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_master
+      - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
@@ -155,7 +155,7 @@ services:
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_master
+      - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
@@ -256,7 +256,7 @@ services:
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_master
+      - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
@@ -328,7 +328,7 @@ services:
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_master
+      - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
@@ -512,7 +512,7 @@ services:
       - --cookie-secret=${KEYCLOAK_USER_SECRET}
       - --cookie-secure=true
       - --cookie-domain=.${DOMAIN_NAME}
-      - --cookie-name=_oauth2_proxy_master
+      - --cookie-name=_oauth2_proxy_user
       - --cookie-samesite=lax
       - --provider-display-name="Keycloak OIDC"
       - --oidc-issuer-url=https://auth.${DOMAIN_NAME}/realms/user
