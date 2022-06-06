@@ -841,6 +841,9 @@ services:
       - traefik.enable=false
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+    command: >
+      /opt/bitnami/scripts/redis/run.sh
+      --protected-mode no
     volumes:
       - redis:/bitnami/redis/data:rw
     ports: []
